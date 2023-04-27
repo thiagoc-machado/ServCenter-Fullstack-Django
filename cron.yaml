@@ -1,0 +1,4 @@
+jobs:
+  prewarm:
+    schedule: "*/10 * * * *"
+    url: "https://servcenter.onrender.com"

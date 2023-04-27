@@ -1,0 +1,86 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/new_client.css' %}" />
+{% endblock %} {% block 'main' %}
+<div id="main" class="main">
+  <div id="cad_cli_tit">
+    <a>Editar Serviços</a>
+  </div>
+  <p></p>
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <form class="row g-6" action="{% url 'edit_services' cod=cod  %}" method="POST">
+    {%csrf_token%}
+
+    <div class="col-md-1">
+      <label for="inputCod" class="form-label">Cod</label>
+      <input
+        type="number"
+        readonly
+        class="form-control"
+        placeholder="Auto"
+        name="inputCod"
+      />
+    </div>
+    <div class="col-md-6">
+      <label for="inputNome" class="form-label">Serviço</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Nome serviço"
+        name="inputNome"
+        value="{{nome}}"
+      />
+    </div>
+    <div class="col-md-5">
+      <label for="inputTipo" class="form-label">Produto</label>
+      <select name="inputTipo" class="form-select" value="{{tipo}}">
+        <option selected>Motor</option>
+        <option>Bomba</option>
+        <option>Ventilador</option>
+      </select>
+    </div>
+    <div class="col-md-12">
+      <label for="inputdescr" class="form-label">descrição</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="descrição do serviço"
+        name="inputdescr"
+        value="{{descr}}"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="inputvalor" class="form-label">Valor</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="somente números"
+        name="inputvalor"
+        value="{{valor}}"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="imputCad" class="form-label">Data Cad.</label>
+      <input type="date" readonly class="form-control" name="input-dataCad" value="{{data_cadastro}}"/>
+    </div>
+    
+    <!-- <div class="col-md-6">
+        <label for="inputPassword4" class="form-label">Password</label>
+        <input type="password" class="form-control" id="inputPassword4" />
+      </div> -->
+      <a>.</a>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+    </div>
+    <div class="col-12"></div>
+  </form>
+  <div class="col-1">
+    <a href="{% url 'services' %}" id="canc_btn" type="submit" class="btn btn-danger">cancelar</a>
+  </div
+</div>
+{% endblock%}

@@ -1,0 +1,165 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'finance/css/finance.css' %}" />
+{% endblock %} {% block 'main' %}
+<div class="row all">
+  <div id="cad_cli_tit">
+    <a>Financeiro</a>
+  </div>
+
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <div class="col-md-4 mb-3">
+    <div class="card bg-success text-white">
+      <h5 class="fin-card-header">
+        Entradas Totais
+        <h3 id="fin-subt2">R$ {{finance_sum}}</h3>
+      </h5>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card bg-danger text-white">
+      <h5 class="fin-card-header">
+        Saídas Totais
+        <h3 id="fin-subt3">R$ {{ finance_minus }}</h3>
+      </h5>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card bg-primary text-white">
+      <h5 class="fin-card-header">
+        Total desde {{finance_date}}
+        <h3 id="fin-subt3">R$ {{ finance_total }}</h3>
+      </h5>
+    </div>
+  </div>
+
+  <div class="actions_bar row">
+    <div class="col-md-2">
+      <a
+        href="{% url 'new_finance' %}"
+        class="btn btn-success btn-block"
+        id="btn_nc"
+        >Entrada avulsa no caixa</a
+      >
+    </div>
+    <div class="col-md-2">
+      <a
+        href="{% url 'new_finance_out' %}"
+        class="btn btn-danger btn-block"
+        id="btn_ac"
+        >Saída avulsa no caixa</a
+      >
+    </div>
+    <div class="col-md-2">
+      <a
+        href="{% url 'finance_xlrx' id=1 %}"
+        class="btn btn-primary btn-block"
+        id="btn_ac"
+        >Exportar movimentação</a
+      >
+    </div>
+    <div class="col-md-1">
+      <a
+        href="{% url 'finance_dia' %}"
+        class="btn btn-dark btn-block"
+        id="btn_ac"
+        >Diario</a
+      >
+    </div>
+    <div class="col-md-1">
+      <a
+        href="{% url 'finance_sem' %}"
+        class="btn btn-dark btn-block"
+        id="btn_ac"
+        >Semanal</a
+      >
+    </div>
+    <div class="col-md-1">
+      <a
+        href="{% url 'finance_mes' %}"
+        class="btn btn-dark btn-block"
+        id="btn_ac"
+        >Mensal</a
+      >
+    </div>
+    <div class="col-md-1">
+      <a
+        href="{% url 'finance_ano' %}"
+        class="btn btn-dark btn-block"
+        id="btn_ac"
+        >Anual</a
+      >
+    </div>
+    <div class="col-md-1">
+      <a
+        href="{% url 'finance_tot' %}"
+        class="btn btn-dark btn-block"
+        id="btn_ac"
+        >Total</a
+      >
+    </div>
+  </div>
+  <div class="col-md-12 mb-3">
+    <div class="card">
+      <div class="card-header">
+        <span><i class="bi bi-table me-2"></i></span> Cilentes
+      </div>
+      <div class="card-body">
+        <div id="table_cli" class="table-responsive">
+          <table
+            id="example"
+            class="table table-striped data-table"
+            style="width: 100%"
+          >
+            <thead>
+              <tr>
+                <th>Cod.</th>
+                <th>Obs</th>
+                <th>Nome</th>
+                <th>Valor</th>
+                <th>Data</th>
+                <th>movimento</th>
+                <th>Tipo Pgto</th>
+                <th id="acoes_th">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for finances in finance %}
+              <tr id="fin_table">
+                <th><a href="{% url 'edit_finance' finances.id %}">{{ finances.id }}</a></th>
+                <th><a href="{% url 'edit_finance' finances.id %}">{{ finances.obs }}</a></th>
+                <th><a href="{% url 'edit_finance' finances.id %}">{{ finances.nome }}</a></th>
+                <th><a href="{% url 'edit_finance' finances.id %}">{{ finances.valor }}</a></th>
+                <th><a href="{% url 'edit_finance' finances.id %}">{{ finances.data }}</a></th>
+                <th><a href="{% url 'edit_finance' finances.id %}">{{ finances.movimento }}</a></th>
+                <th><a href="{% url 'edit_finance' finances.id %}">{{ finances.tipo_pgto }}</a></th>
+                <th>
+                  <a id="btn_ed" href="{% url 'edit_finance' finances.id %}" type="button" class="btn btn-success">
+                    <i class="bi bi-pen"></i>
+                  </a>
+                  <a
+                    href="{% url 'del_finance' finances.id %}"
+                    id="btn_ap"
+                    type="button"
+                    class="btn btn-danger delete"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </th>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{% static 'clients/js/script.js'%}"></script>
+{% endblock%}

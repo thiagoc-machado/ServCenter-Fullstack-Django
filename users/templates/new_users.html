@@ -1,0 +1,133 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/new_client.css' %}" />
+{% endblock %} {% block 'main' %}
+<div id="main" class="main">
+  <div id="cad_cli_tit">
+    <a>Cadastro de Usuários</a>
+  </div>
+  <p></p>
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <form class="row g-6" action="{% url 'new_users' %}" method="POST">
+    {%csrf_token%}
+
+    <div class="col-md-1">
+      <label for="inputCod" class="form-label">Cod</label>
+      <input
+        type="number"
+        readonly
+        class="form-control"
+        placeholder="Auto"
+        name="id"
+      />
+    </div>
+    <div class="col-md-3">
+      <label for="username" class="form-label">Nome de usuário</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Digite o nome de usuário"
+        name="username"
+        value="{{username}}"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label for="first_name" class="form-label">Primeiro nome</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Digite seu primeiro nome"
+        name="first_name"
+        value="{{first_name}}"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label for="last_name" class="form-label">Sobrenome</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Digite seu sobrenome"
+        name="last_name"
+        value="{{last_name}}"
+      />
+    </div>
+    
+    <div class="col-md-2">
+      <label for="password" class="form-label">Senha</label>
+      <input
+        type="password"
+        class="form-control"
+        placeholder="Digite uma senha forte"
+        name="password"
+        value="{{password}}"
+      />
+    </div>
+    <div class="col-md-4">
+      <label for="email" class="form-label">Email</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Digite o seu email"
+        name="email"
+        value="{{email}}"
+      />
+    </div>
+    <!-- <div class="col-md-6">
+        <label for="inputPassword4" class="form-label">Password</label>
+        <input type="password" class="form-control" id="inputPassword4" />
+      </div> -->
+
+      <a>.</a>
+    <div class="col-12">
+      <div class="form-check form-switch" id="is_superuser">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          readonly
+          name="is_superuser"
+        />
+        <label class="form-check-label" for="is_superuser"> Administrador </label>
+      </div>
+    </div>
+
+    <div class="col-12">
+        <div class="form-check form-switch" id="is_staff">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            name="is_staff"
+          />
+          <label class="form-check-label" for="is_staff"> Mantenedor do sistema </label>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="form-check form-switch" id="is_active">
+          <input
+            class="form-check-input"
+            type="checkbox" checked
+            name="is_active"
+          />
+          <label class="form-check-label" for="is_active"> Usuário ativo </label>
+        </div>
+      </div>
+      <p></p>
+
+    <br />
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+    </div>
+    <div class="col-12"></div>
+  </form>
+  <div class="col-1">
+    <a href="{% url 'users' %}" id="canc_btn" type="submit" class="btn btn-danger">cancelar</a>
+  </div
+</div>
+{% endblock%}

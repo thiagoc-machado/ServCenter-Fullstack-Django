@@ -1,0 +1,103 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/new_client.css' %}" />
+{% endblock %} {% block 'main' %}
+<div id="main" class="main">
+  <div id="cad_cli_tit">
+    <a>Editar avulsa no caixa</a>
+  </div>
+  <p></p>
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <form class="row g-6 all" action="{% url 'edit_finance' id=id %}" method="POST" enctype="multipart/form-data">
+    {%csrf_token%}
+
+    <div class="col-md-1">
+      <label for="inputCod" class="form-label">Cod</label>
+      <input
+        type="number"
+        readonly
+        class="form-control"
+        placeholder="Auto"
+        name="inputCod"
+        value='{{id}}'
+      />
+    </div>
+    <div class="col-md-11">
+      <label for="inputObs" class="form-label">Observação</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Observação"
+        name="inputObs"
+        value="{{obs}}"
+      />
+    </div>
+    <div class="col-md-10">
+      <label for="inputNome" class="form-label">Nome</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="nome"
+        name="inputNome"
+        value="{{nome}}"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="imputData" class="form-label">Data</label>
+      <input type="date" class="form-control" name="inputData" value="{{data}}" />
+    </div>
+    <div class="col-md-2">
+      <label for="inputValor" class="form-label">Valor</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Valor"
+        name="inputValor"
+        value="{{valor}}"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="inputTipoPgto" class="form-label">Modo de pagamento</label>
+      <select name="inputTipoPgto" class="form-select" value="{{inputTipoPgto}}">
+        <option selected>{{tipo_pgto}}</option>
+        <option>Dinheiro</option>
+        <option>PIX</option>
+        <option>Crédito</option>
+        <option>Débito</option>
+        <option>Depósito</option>
+        <option>Boleto</option>
+      </select>
+    </div>
+    <div >
+        <div class="col-12  checkbox">
+            <i>Saída </i>
+            <div class="form-check form-switch" id="is_active">
+            <input
+                class="form-check-input"
+                type="checkbox"
+                name="in_out"
+                {% if movimento == 'entrada' %}
+                checked
+                {% endif %}
+            />
+            <label class="form-check-label" for="in_out"> Entrada </label>
+            </div>
+        </div>
+    <br />
+    <i></i>
+    <br />
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Salvar</button>
+    </div>
+    <div class="col-12"></div>
+  </form>
+  <div class="col-1">
+    <a href="{% url 'finance' %}" id="canc_btn" type="submit" class="btn btn-danger">cancelar</a>
+  </div
+</div>
+{% endblock%}

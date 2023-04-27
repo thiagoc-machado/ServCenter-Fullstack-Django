@@ -1,0 +1,56 @@
+.main {
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  padding: 0;
+}
+#cad_cli_tit a {
+  margin-top: -4px;
+  font-size: 3vh;
+  font-weight: 500;
+  border-radius: 10px;
+}
+#cli_atv {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+#canc_btn {
+  margin-top: -67px;
+  margin-left: 80px;
+}
+
+.checkbox {
+  margin-top: 10px;
+  border: 1px solid rgb(249, 249, 249);
+  border-radius: 5px;
+  justify-content: center;
+  font-size: larger;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+.checkbox input {
+  background-color: rgb(163, 56, 56);
+}
+
+@media (min-width: 992px) {
+  .main {
+    margin-left: 210px;
+    margin-right: 10px;
+  }
+  #cad_cli_tit {
+    margin-top: -50px;
+    font-size: 3vh;
+    font-weight: 500;
+    border: 0;
+    padding: 0;
+  }
+  #canc_btn {
+    margin-top: -65px;
+    margin-left: 80px;
+  }
+  #some {
+    display: none;
+  }
+}

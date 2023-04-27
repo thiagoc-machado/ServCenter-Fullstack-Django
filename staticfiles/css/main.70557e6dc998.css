@@ -1,0 +1,86 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+body,
+button {
+  font-family: "Inter", sans-serif;
+  margin: 0;
+  padding: 0;
+  background: rgba(91, 170, 244, 0.293);
+}
+:root {
+  --offcanvas-width: 200px;
+  --topNavbarHeight: 0px;
+}
+#logo {
+  padding: 10px;
+  max-width: 100%;
+}
+#logo_nav {
+  max-width: 120px;
+}
+#n_os {
+  background: rgba(172, 255, 47, 0.303);
+}
+#n_ven {
+  background: rgba(47, 248, 255, 0.226);
+}
+#n_cli {
+  background: rgba(47, 95, 255, 0.234);
+}
+#tit_motores {
+  text-align: center;
+  margin-left: -10px;
+}
+#res_menu {
+  position: fixed;
+  margin-top: -40px;
+  margin-left: 2%;
+  color: aliceblue;
+  font-weight: 900;
+  background: rgba(91, 170, 244, 0.293);
+  z-index: 200;
+}
+.custom-card-height {
+  height: 100px;
+}
+#subt1,
+#subt2,
+#subt3,
+#subt4 {
+  margin-left: 25px;
+}
+.sidebar-nav {
+  width: var(--offcanvas-width);
+}
+.sidebar-link {
+  display: flex;
+  align-items: center;
+}
+.sidebar-link .right-icon {
+  display: inline-flex;
+}
+.sidebar-link[aria-expanded="true"] .right-icon {
+  transform: rotate(180deg);
+}
+#top_nav {
+  background: rgba(65, 109, 150, 0.293);
+}
+@media (min-width: 992px) {
+  body {
+    overflow: auto !important;
+  }
+  main {
+    margin-left: var(--offcanvas-width);
+  }
+  /* this is to remove the backdrop */
+  .offcanvas-backdrop::before {
+    display: none;
+  }
+  .sidebar-nav {
+    -webkit-transform: none;
+    transform: none;
+    visibility: visible !important;
+    height: calc(100% - var(--topNavbarHeight));
+    top: var(--topNavbarHeight);
+  }
+}

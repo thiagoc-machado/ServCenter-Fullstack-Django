@@ -1,0 +1,31 @@
+.doc {
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 0;
+}
+  .upload{
+    margin-top: -50px;
+    margin-bottom: 10px;
+    border: 1px solid #f7f7f7;
+    border-radius: 10px;
+    padding: 5px;
+  }
+
+  
+  @media (min-width: 992px) {
+    .doc {
+      margin-left: 200px;
+      margin-right: 1.5px;
+    }
+    #cad_cli_tit {
+      margin-top: -50px;
+      margin-left: 10px;
+      font-size: 3vh;
+      font-weight: 500;
+      border: 0;
+      padding: 0;
+      margin-bottom: 20px;
+  
+    }
+  }
+  

@@ -1,0 +1,118 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'documents/css/documents.css' %}" />
+{% endblock %} {% block 'main' %}
+<div class="row doc">
+  <div id="cad_cli_tit">
+    <a>Documentos</a>
+  </div>
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+  <div class="container mt-5 ">
+    <form method="POST" enctype="multipart/form-data" class = "upload" action="{% url 'documents' %}">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-12 col-md-6 mb-3">
+          <label for="arquivo" class="form-label">Arquivo:</label>
+          <input type="file" class="form-control" id="arquivo" name="arquivo" />
+        </div>
+        <div class="col-12 col-md-3 mb-3">
+          <label for="nome" class="form-label">Nome:</label>
+          <input type="text" class="form-control" id="nome" name="nome" />
+        </div>
+        <div class="col-12 col-md-3 mb-3">
+          <label for="data" class="form-label">Data:</label>
+          <input type="date" class="form-control" id="data" name="data" value = "{{data}}" />
+        </div>
+        <div class="col-12 col-md-6 mb-3">
+          <label for="texto" class="form-label">Texto:</label>
+          <textarea
+            class="form-control"
+            id="texto"
+            name="texto"
+            rows="2"
+          ></textarea>
+        </div>
+        <div class="col-12 col-md-6 mb-3">
+          <label for="obs" class="form-label">Observações:</label>
+          <textarea
+          class="form-control"
+            id="obs"
+            name="obs"
+            rows="2"
+          ></textarea>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Fazer Upload</button>
+    </form>
+  </div>
+
+  <div class="col-md-12 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <div id="table_cli" class="table-responsive">
+          <table
+            id="example"
+            class="table table-striped data-table"
+            style="width: 100%"
+          >
+            <thead>
+              <tr>
+                <th>Cod.</th>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Tamanho</th>
+                <th>Data cadastro</th>
+                <th id="acoes_th">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for document in documents %}
+              <tr>
+                <td>{{ document.id }}</td>
+                <td>{{ document.nome }}</td>
+                <td>{{ document.arquivo.name|slice:"."|default:"" }}</td>
+                <td>{{ document.arquivo }}</td>
+                <td>{{ document.data }}</td>
+
+                <th>
+                  <a
+                    href="{% url 'view_documents' document.id %}"
+                    id="btn_ap"
+                    type="button"
+                    class="btn btn-primary"
+                  >
+                    <i class="bi bi-pen"></i>
+                  </a>
+                  <a
+                    href="{% url 'download_documents' document.id %}"
+                    id="btn_ap"
+                    type="button"
+                    class="btn btn-primary"
+                  >
+                    <i class="bi bi-arrow-down-circle"></i>
+                  </a>
+                  <a
+                    href="{% url 'del_documents' document.id %}"
+                    id="btn_ap"
+                    type="button"
+                    class="btn btn-danger"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </th>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{% static 'clients/js/script.js'%}"></script>
+{% endblock%}

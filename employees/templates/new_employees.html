@@ -1,0 +1,222 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/new_client.css' %}" />
+{% endblock %} {% block 'main' %}
+<div id="main" class="main">
+  <div id="cad_cli_tit">
+    <a>Cadastro de Funcionários</a>
+  </div>
+  <p></p>
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <form class="row g-6" action="{% url 'new_employees' %}" method="POST">
+    {%csrf_token%}
+
+    <div class="col-md-1">
+      <label for="inputCod" class="form-label">Cod</label>
+      <input
+        type="number"
+        readonly
+        class="form-control"
+        placeholder="Auto"
+        name="inputCod"
+      />
+    </div>
+    <div class="col-md-5">
+      <label for="inputNome" class="form-label">Nome</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Nome completo"
+        name="inputNome"
+        value="{{nome}}"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="inputTipo" class="form-label">Função</label>
+      <select name="inputTipo" class="form-select" value="{{func}}">
+        <option selected>Pessoa Física</option>
+        <option>Pessoa Jurídica</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label for="inputCpf" class="form-label">CPF / CNPJ</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="somente números"
+        name="inputCpf"
+        value="{{cpf}}"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="inputRg" class="form-label">RG</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="somente números"
+        name="inputRg"
+        value="{{rg}}"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="imputNasc" class="form-label">Data Nasc.</label>
+      <input type="date" class="form-control" name="inputNasc" />
+    </div>
+    <div class="col-md-2">
+      <label for="inputTel" class="form-label">Telefone</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Insira com DDD"
+        name="inputTel"
+        value="{{telefone}}"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="inputCel" class="form-label">Celular</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Insira com DDD"
+        name="inputCel"
+        value="{{celular}}"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="inputWts" class="form-label">Whatsapp</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Insira com DDD"
+        name="inputWts"
+        value="{{whatsapp}}"
+      />
+    </div>
+    <div class="col-md-4">
+      <label for="inputEmail" class="form-label">Email</label>
+      <input
+        type="email"
+        class="form-control"
+        placeholder="mail@mail.com"
+        name="inputEmail"
+        value="{{email}}"
+      />
+    </div>
+    <!-- <div class="col-md-6">
+        <label for="inputPassword4" class="form-label">Password</label>
+        <input type="password" class="form-control" id="inputPassword4" />
+      </div> -->
+
+    <b>Endereço:</b>
+    <div class="col-md-2">
+      <label for="inputTipoEnd" class="form-label">Tipo</label>
+      <select name="inputTipoEnd" class="form-select" value="{{tipo_end}}">
+        <option selected>Residencial</option>
+        <option>Comercial</option>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label for="inputRua" class="form-label">Rua</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Nome da rua"
+        name="inputRua"
+        value="{{rua}}"
+      />
+    </div>
+    <div class="col-md-1">
+      <label for="inputNum" class="form-label">Número</label>
+      <input
+        type="number"
+        class="form-control"
+        placeholder="Numero"
+        name="inputNum"
+        value="{{numero}}"
+      />
+    </div>
+    <div class="col-md-5">
+      <label for="inputComp" class="form-label">Complemento</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Complemento Ex. casa 01"
+        name="inputComp"
+        value="{{compl}}"
+      />
+    </div>
+    <div class="col-md-3">
+      <label for="inputbai" class="form-label">Bairro</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Nome do bairro"
+        name="inputBai"
+        value="{{bairro}}"
+      />
+    </div>
+    <div class="col-md-4">
+      <label for="inputCid" class="form-label">Cidade</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Nome da cidade"
+        name="inputCid"
+        value="{{cidade}}"
+      />
+    </div>
+    <div class="col-md-1">
+      <label for="inputUf" class="form-label">Estado</label>
+      <input type="text" class="form-control" placeholder="UF" name="inputUf" />
+    </div>
+    <div class="col-md-2">
+      <label for="inputCep" class="form-label">CEP</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Cep"
+        name="inputCep"
+        value="{{cep}}"
+      />
+    </div>
+
+    <div class="col-12">
+      <div class="form-group">
+        <label for="foto">Foto:</label>
+        <input
+          type="file"
+          class="form-control"
+          id="foto"
+          name="foto"
+          value="{{foto}}"
+        />
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="form-check form-switch" id="cli_atv">
+        <input
+          class="form-check-input"
+          type="checkbox" checked
+          readonly
+          name="ativo"
+        />
+        <label class="form-check-label" for="gridCheck"> Funcionário ativo </label>
+      </div>
+    </div>
+    <br />
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+    </div>
+    <div class="col-12"></div>
+  </form>
+  <div class="col-1">
+    <a href="{% url 'employees' %}" id="canc_btn" type="submit" class="btn btn-danger">cancelar</a>
+  </div
+</div>
+{% endblock%}

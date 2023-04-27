@@ -1,0 +1,127 @@
+body {
+  padding-top: 90px;
+  background: #ebebeb;
+}
+.panel-login {
+  border-color: #ccc;
+  padding: 10px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #f6f6f6, #cfcfcf);
+  box-shadow: 8px 8px 8px #cdcdcd, -8px -8px 8px #ffffff;
+}
+/* .panel-login > .panel-heading {
+  color: #5d0055;
+  background-color: #fff;
+  border-color: #fff;
+  text-align: center;
+}  */
+/* .panel-login > .panel-heading a {
+  text-decoration: none;
+  color: #666;
+  font-weight: bold;
+  font-size: 15px;
+  -webkit-transition: all 0.1s linear;
+  -moz-transition: all 0.1s linear;
+  transition: all 0.1s linear;
+} */
+.panel-login > .panel-heading a.active {
+  color: #336a85;
+  font-size: 18px;
+}
+#logo {
+  max-width: 150px;
+}
+/* .panel-login > .panel-heading hr {
+  margin-top: 10px;
+  margin-bottom: 0px;
+  clear: both;
+  border: 0;
+  height: 1px;
+  background-image: -webkit-linear-gradient(
+    left,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0)
+  );
+  background-image: -moz-linear-gradient(
+    left,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0)
+  );
+  background-image: -ms-linear-gradient(
+    left,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0)
+  );
+  background-image: -o-linear-gradient(
+    left,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0)
+  );
+} */
+.panel-login input[type="text"],
+.panel-login input[type="email"],
+.panel-login input[type="password"] {
+  height: 45px;
+  border: 1px solid rgb(193, 193, 193);
+  font-size: 16px;
+  -webkit-transition: all 0.4s linear;
+  -moz-transition: all 0.4s linear;
+  transition: all 0.4s linear;
+}
+.panel-login input:hover,
+.panel-login input:focus {
+  outline: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border-color: rgb(96, 96, 96);
+}
+.btn-login {
+  background-color: #59b2e0;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  height: auto;
+  font-weight: normal;
+  padding: 14px 0;
+  text-transform: uppercase;
+  border-color: #59b2e6;
+  transition: 0.3s;
+}
+.btn-login:hover,
+.btn-login:focus {
+  color: #fff;
+  background-color: #0050c0;
+  border-color: #53a3cd;
+}
+/* .forgot-password {
+  text-decoration: underline;
+  color: #888;
+}
+.forgot-password:hover,
+.forgot-password:focus {
+  text-decoration: underline;
+  color: #666;
+} */
+
+/* .btn-register {
+  background-color: #1cb94e;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  height: auto;
+  font-weight: normal;
+  padding: 14px 0;
+  text-transform: uppercase;
+  border-color: #1cb94a;
+} */
+/* .btn-register:hover,
+.btn-register:focus {
+  color: #fff;
+  background-color: #1ca347;
+  border-color: #1ca347;
+} */

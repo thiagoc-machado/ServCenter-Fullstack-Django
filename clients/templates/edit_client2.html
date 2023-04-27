@@ -1,0 +1,14 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/new_client.css' %}" />
+{% endblock %} {% block 'main' %}
+<div class="main">
+  <div id="cad_cli_tit">
+    <a>Editar cliente</a>
+  </div>
+  <form action="{% url 'edit_client' client_obj.cod_cli %}" method="POST">
+    {% csrf_token %} {{ form.as_p }}
+    <input type="submit" class="btn btn-success" value="Salvar" />
+  </form>
+</div>
+{% endblock%}

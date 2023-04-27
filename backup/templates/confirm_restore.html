@@ -1,0 +1,44 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/clients.css' %}" />
+{% endblock %}
+
+{% block 'main' %}
+<div class="row">
+  <div id="cad_cli_tit">
+    <a>Criar / restaurar cópia de segurança</a>
+  </div>
+
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <div class="col-sm-12">
+    <form method="post" action="{% url 'backup_download' %}">
+      {% csrf_token %}
+      <a href="{% url 'backup_download' %}" class="btn btn-success">Download Backup</a>
+    </form>
+    <br/>
+  </div>
+
+  <div class="col-sm-12">
+    <form method="post" enctype="multipart/form-data" action="{% url 'confirm_restore' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="backup_file">Selecione o arquivo de backup:</label>
+        <input type="file" class="form-control" id="backup_file" name="backup_file" required>
+      </div>
+      <br/>
+      <button type="submit" class="btn btn-primary">Restaurar Backup</button>
+    </form>
+  </div>
+
+</div>
+
+<script src="{% static 'clients/js/script.js'%}"></script>
+{% endblock%}

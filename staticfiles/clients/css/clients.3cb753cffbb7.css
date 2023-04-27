@@ -1,0 +1,68 @@
+.row {
+  margin-left: 0px;
+  margin-right: 0px;
+  padding: 0;
+}
+#cad_cli_tit {
+  margin-top: 0px;
+  font-size: 2vh;
+  font-weight: 500;
+}
+#btn_nc,
+#btn_ac {
+  font-size: 1vh;
+  margin: 0px 0px 5px 12px;
+}
+#btn_ed,
+#btn_ap,
+#btn_wz {
+  width: 20px;
+  font-size: 1vh;
+  padding: 3px;
+  justify-content: center;
+}
+#table_cli {
+  font-size: 1.5vh;
+  width: auto;
+}
+.actions_bar {
+  padding: 0px;
+}
+#acoes_th {
+  min-width: 60px;
+}
+
+@media (min-width: 992px) {
+  .row {
+    margin-left: 200px;
+    margin-right: 1.5px;
+  }
+  #cad_cli_tit {
+    margin-top: -50px;
+    font-size: 3vh;
+    font-weight: 500;
+    border: 0;
+    padding: 0;
+    margin-bottom: 20px;
+
+  }
+  #btn_nc,
+  #btn_ac {
+    padding: 10px;
+    font-size: 1.5vh;
+    margin: 0px 0px 5px 12px;
+  }
+  #btn_ed,
+  #btn_ap,
+  #btn_wz {
+    width: 30px;
+    font-size: 1.5vh;
+    padding: 3px;
+  }
+  #table_cli {
+    font-size: 2vh;
+  }
+  #acoes_th {
+    width: 100px;
+  }
+}

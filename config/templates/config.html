@@ -1,0 +1,92 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/clients.css' %}" />
+{% endblock %} {% block 'main' %}
+<div class="row">
+  <div id="cad_cli_tit">
+    <a>Minha empresa</a>
+  </div>
+
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <div class="actions_bar">
+    <a href="{% url 'edit_config' %}" id="btn_nc" type="button" class="btn btn-success">
+      Editar empresa
+    </a>
+  </div>
+  <div class="col-md-12 mb-3">
+    <div class="card">
+
+        {% block content %}
+    <ul>
+        {% for config in configs %}
+            <li>
+                <h3>{{ config.nome_empresa }}</h3> 
+                <p>Nome Fantasia: {{ config.nome_fantasia }}</p>
+                <p>Responsável: {{ config.responsavel }}</p>
+                <p>Atividade: {{ config.atividade }}</p>
+                <p>CNPJ: {{ config.cnpj }}</p>
+                <p>Endereço: {{ config.endereco }} {{ config.numero }}</p>
+                <p>Bairro: {{ config.bairro }}</p>
+                <p>Cidade: {{ config.cidade }}/{{ config.estado }}</p>
+                <p>CEP: {{ config.cep }}</p>
+                <p>Obs: {{ config.obs }}</p>
+                <p>Data: {{ config.data }}</p>
+                {% if config.logo1 %}
+                    <img src="{{ config.logo1.url }}" alt="Logo 1" width = "200px">
+                {% endif %}
+                {% if config.logo2 %}
+                    <img src="{{ config.logo2.url }}" alt="Logo 2" width = "200px" >
+                {% endif %}
+                
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class='categoria'>
+      <i>Nova categorias de entradas no caixa</i>
+      <form action="{% url 'categoria_in' %}" method="POST">
+          {% csrf_token %}
+          <input type="text" name="categoriasIn" placeholder="Nome da categoria">
+          <input type="submit" value="Salvar">
+      </form>
+      <ul>
+        {% for categoria in categorias_in %}
+        <li>
+          <a href="{% url 'del_categoria_in' categoria.id %}" id="btn_ap">
+            <i class="bi bi-dash-circle-fill text-danger"></i>
+          </a>{{ categoria.categoria }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class='categoria'>
+      <i>Nova categoria de saídas no caixa</i>
+      <form action="{% url 'categoria_out' %}" method="POST">
+          {% csrf_token %}
+          <input type="text" name="categoriasOut" placeholder="Nome da categoria">
+          <input type="submit" value="Salvar">
+      </form>
+      <ul>
+        {% for categoria in categorias_out %}
+        <li>
+          <a href="{% url 'del_categoria_out' categoria.id %}" id="btn_ap">
+            <i class="bi bi-dash-circle-fill text-danger"></i>
+          </a><i>{{ categoria.categoria }}</i>
+        </li>
+        {% endfor %}
+        <ul>
+    </div>
+  </div>
+
+{% endblock %}
+        
+    </div>
+  </div>
+</div>
+<script src="{% static 'clients/js/script.js'%}"></script>
+{% endblock%}

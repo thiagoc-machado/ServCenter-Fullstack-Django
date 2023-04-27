@@ -1,0 +1,36 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/clients.css' %}" />
+{% endblock %} {% block 'main' %}
+<div class="row">
+  <div id="cad_cli_tit">
+    <a>Minha empresa</a>
+  </div>
+
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <div class="actions_bar">
+    <a href="{% url 'config' %}" id="btn_nc" type="button" class="btn btn-success">
+      voltar
+    </a>
+  </div>
+  <div class="col-md-12 mb-3">
+    <div class="card">
+
+        {% block content %}
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Salvar</button>
+            </form>
+        {% endblock %}
+        
+    </div>
+  </div>
+</div>
+<script src="{% static 'clients/js/script.js'%}"></script>
+{% endblock%}

@@ -1,0 +1,11 @@
+[tool.poetry]
+name = "servcenter"
+version = "0.1.0"
+description = ""
+authors = ["Thiago Carvalho Machado <thiagomachado.dev>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+whitenoise = {extras = ["brotli"], version = "^6.3.0"}
+
+[tool.poetry.dev-dependencies]

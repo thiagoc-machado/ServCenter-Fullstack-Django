@@ -1,0 +1,84 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/clients.css' %}" />
+{% endblock %} {% block 'main' %}
+<div class="row">
+  <div id="cad_cli_tit">
+    <a>Cadastro de clientes</a>
+  </div>
+
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <div class="actions_bar">
+    <a href="{% url 'new_client' %}" id="btn_nc" type="button" class="btn btn-success">
+      Cadastrar novo Cliente
+    </a>
+    <a href="{% url 'clientes_xlr' %}"id="btn_ac" type="button" class="btn btn-primary">
+      Exportar lista de clientes
+    </a>
+  </div>
+  <div class="col-md-12 mb-3">
+    <div class="card">
+      <div class="card-header">
+        <span><i class="bi bi-table me-2"></i></span> Cilentes
+      </div>
+      <div class="card-body">
+        <div id="table_cli" class="table-responsive">
+          <table
+            id="example"
+            class="table table-striped data-table"
+            style="width: 100%"
+          >
+            <thead>
+              <tr>
+                <th>Cod.</th>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>Whatsapp</th>
+                <th>Data cadastro</th>
+                <th>Status</th>
+                <th id="acoes_th">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for clients in cli %}
+              <tr>
+                <td>{{ clients.cod_cli }}</td>
+                <td>{{ clients.nome }}</td>
+                <td>{{ clients.telefone }}</td>
+                <td>{{ clients.whatsapp }}</td>
+                <td>{{ clients.data_cadastro }}</td>
+                <td>
+                  {% if clients.ativo == True %}
+                    <span>Ativo</span>
+                  {% elif clients.ativo == False %}
+                    <span>Inativo</span>
+                  {% endif %} 
+                </td>
+                <th>
+                  <a id="btn_ed" href="{% url 'edit_client' clients.cod_cli %}"  type="button" class="btn btn-success">
+                    <i class="bi bi-pen"></i>
+                  </a>
+                  <a href="{% url 'del_cli' clients.cod_cli %}" id="btn_ap" type="button" class="btn btn-danger delete">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                  <a href="https://api.whatsapp.com/send?phone=55{{clients.whatsapp}}&text=Ol%C3%A1, {{clients.nome}} tudo bem?" id="btn_wz" type="button" class="btn btn-success">
+                    <i class="bi bi-whatsapp"></i>
+                  </a>
+                </th>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{% static 'clients/js/script.js'%}"></script>
+{% endblock%}

@@ -1,0 +1,355 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/new_client.css' %}" />
+
+    {% comment %} <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script> {% endcomment %}
+
+
+{% endblock %} {% block 'main' %}
+
+<div id="main" class="main">
+  <div id="cad_cli_tit"> 
+    <a>Nova Ordem de serviço</a>
+  </div>
+  <p></p>
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <form class="row g-6" action="{% url 'new_work_order' %}" method="POST" enctype="mulipart/form-data">
+    {%csrf_token%}
+
+    <div class="row g-6">
+        <p class= "p-1 mb-2 bg-info text-white">Dados do cliente</p>
+
+        <div class="col-md-1">
+            <label for="cod_os" class="form-label">OS</label>
+            <input
+                type="number" readonly
+                class="form-control"
+                placeholder="Auto"
+                name="cod_os"
+                value="{{cod_os}}"
+            />
+        </div>
+
+        <div class="col-md-1">
+        <label for="cod_cli" class="form-label">Cod cliente</label>
+        <input
+            id="cod_cli"
+            type="number" readonly
+            class="form-control"
+            placeholder="Auto"
+            name="cod_cli"
+            value="{{cod_cli}}"
+        />
+        </div>
+
+
+        <div class="col-md-4">
+            <label for="nome" class="form-label">Cliente</label>
+            <input list="list_clients" value="{{cliente}}" class="form-select" placeholder="Digite para buscar" name="cliente" onchange="getSelectedValue()"> 
+            <datalist id="list_clients">
+                {% for clients in list_client %}
+                <option data-cod_cli ="{{ clients.cod_cli }}" data-whatsapp="{{clients.whatsapp}}" value="{{clients.nome}}"> {{ clients.nome }}</option>
+                {% endfor %}
+            </datalist>
+        </div>
+
+
+        <div class="col-md-2">
+            <label for="telefone" class="form-label">Tel / Whatsapp</label>
+            <input
+                id="whatsapp"
+                type="text"
+                class="form-control"
+                placeholder="tel / whatsapp"
+                name="whatsapp"
+                value="{{clients.whatsapp}}{{whatsapp}}"
+            />
+        </div>
+
+        <div class="col-md-2">
+            <label for="data_entrada" class="form-label">Data de entrada.</label>
+            <input type="date" readonly class="form-control" name="data_entrada"  value="{{data}}" />
+        </div>
+
+        <div class="col-md-2">
+            <label for="inputCpf" class="form-label">Hora</label>
+            <input
+            type="text" readonly
+            class="form-control"
+            placeholder="hh:mm"
+            name="hora"
+            value="{{hora}}"
+            />
+        </div>
+
+        <div class="col-md-2">
+            <label for="status" class="form-label">Status</label>
+            <select name="status" class="form-select" value="{{status}}">
+                <option selected>Aguardando orçamento</option>
+                <option>Orçado</option>
+                <option>Aprovado</option>
+                <option>Reprovado</option>
+                <option>Pronto</option>
+                <option>Sem conserto</option>
+            </select>
+        </div>
+
+        <div class="col-md-10">
+            <label for="obs_cli" class="form-label">Observação</label>
+            <input
+                type="text"
+                class="form-control"
+                placeholder="Observações gerais"
+                name="obs_cli"
+                value="{{obs_cli}}"
+            />
+        </div>
+        <p></p>
+    </div>
+
+
+    <div class="row g-6">
+        <p class= "p-1 mb-2 bg-info text-white">Dados do produto</p>
+
+        <div class="col-md-3">
+        <label for="produto" class="form-label">Produto</label>
+        <input
+            type="text"
+            class="form-control"
+            placeholder="Nome do Produto"
+            name="produto"
+            value="{{produto}}"
+        />
+        </div>
+
+        <div class="col-md-3">
+            <label for="marca" class="form-label">Marca</label>
+            <input
+                type="text"
+                class="form-control"
+                placeholder="Marca do produto"
+                name="marca"
+                value="{{marca}}"
+            />
+        </div>
+
+        <div class="col-md-2">
+            <label for="modelo" class="form-label">Modelo</label>
+            <input
+                type="text"
+                class="form-control"
+                placeholder="Modelo do produto"
+                name="modelo"
+                value="{{modelo}}"
+            />
+        </div>
+
+        <div class="col-md-2">
+            <label for="serie" class="form-label">Num. de série</label>
+            <input
+                type="text"
+                class="form-control"
+                placeholder="Numerode série"
+                name="serie"
+                value="{{serie}}"
+            />
+        </div>
+
+        <div class="col-md-2">
+            <label for="condicao" class="form-label">Condição</label>
+            <input
+                type="text"
+                class="form-control"
+                placeholder="condição do produto"
+                name="condicao"
+                value="{{condicao}}"
+            />
+        </div>
+
+        <div class="col-md-6">
+            <label for="acessorios" class="form-label">Acessórios</label>
+            <input
+                type="text"
+                class="form-control"
+                placeholder="Acessorio do produto"
+                name="acessorios"
+                value="{{acessorios}}"
+            />
+        </div>
+
+        <div class="col-md-6">
+            <label for="defeito" class="form-label">Defeito</label>
+            <input
+                type="text"
+                class="form-control"
+                placeholder="Defeito reclamado"
+                name="defeito"
+                value="{{defeito}}"
+            />
+        </div>
+
+        <div class="col-md-9">
+            <label for="obs_ser" class="form-label">Obsercações</label>
+            <input
+                type="text"
+                class="form-control"
+                placeholder="Observações gerais sobre o produto"
+                name="obs_ser"
+                value="{{obs_ser}}"
+            />
+        </div>
+        <div class="col-md-3">
+            <label for="photos" class="form-label">Fotos do produto</label>
+            <input
+                type="file" multiple
+                class="form-control"
+                placeholder="Fotos do produto / serviço"
+                name="photos"
+                value="{{photos}}"
+            />
+        </div>
+
+        <p></p>
+
+    </div>
+    <div class="row g-6">
+        <p class= "p-1 mb-2 bg-info text-white">Dados do serviço</p>
+
+        <div class="col-md-3">
+            <label for="tecnico" class="form-label">tecnico resp.</label>
+            <select name="cod_tecnico" class="form-select chosen" id="cod_tecnico" value="{{cod_tecnico}}">
+                {% for employee in list_employee %}
+                <option value = "{{employee.cod}}">{{ employee.nome}}</option>
+                {% endfor %}
+            </select>
+            <div class="error-message" id="error-message"></div>
+        </div>
+
+        <div class="col-md-3">
+            <label for="servico" class="form-label">Serviço</label>
+            <select name="cod_ser" class="form-select chosen" id="cod_ser" value="{{service.nome}}">
+                {% for service in list_service %}
+                <option value = "{{service.cod}}">{{ service.nome}} - {{service.tipo }}</option>
+                {% endfor %}
+            </select>
+            <div class="error-message" id="error-message"></div>
+        </div>
+
+        <div class="col-md-6">
+        <label for="solucao" class="form-label">Descr. do serviço</label>
+            <input
+                type="text"
+                class="form-control"
+                placeholder="Solução ao defeito"
+                name="solucao"
+                value="{{solucao}}"
+            />
+        </div>
+        <p></p>
+    </div>
+
+    <div class="row g-6">
+        <p class= "p-1 mb-2 bg-info text-white">Dados de valor</p>
+
+        <div class="col-md-2">
+            <label for="preco" class="form-label">Preço</label>
+            <input
+                type="number"
+                class="form-control"
+                placeholder="Valor do serviço"
+                name="preco"
+                value="{{service.preco}}{{preco}}"
+                step="any"
+            />
+        </div>
+        <div class="col-md-4">
+            <label for="desconto" class="form-label">Desconto</label>
+            <input
+                type="number"
+                class="form-control"
+                placeholder="Desconto sobre o preço"
+                name="desconto"
+                value="0{{desconto}}"
+                step="any"
+            />
+        </div>
+
+        <div class="col-md-3">
+            <label for="acressimo" class="form-label">acressimos</label>
+            <input
+                type="number"
+                class="form-control"
+                placeholder="Acréssimo sobre o preço"
+                name="acressimo"
+                value="0{{acressimo}}"
+                step="any"
+            />
+        </div>
+
+        <div class="col-md-3">
+            <label for="total" class="form-label">Total</label>
+            <input
+                type="text" readonly
+                class="form-control"
+                placeholder="Total"
+                name="total"
+                value="{{total}}"
+            />
+        </div>
+
+        <div class="col-md-2">
+            <label for="modo_pgto" class="form-label">Modo de Pagamento</label>
+            <select name="modo_pgto" class="form-select" value="{{modo_pgto}}">
+                <option selected>Dinheiro</option>
+                <option>PIX</option>
+                <option>Crédito</option>
+                <option>Débito</option>
+                <option>Depósito</option>
+                <option>Boleto</option>
+            </select>
+        </div>
+
+        <p></p>
+        <div class="col-12">
+            <div class="form-check form-switch" id="is_active">
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="pgto_adiantado"
+                />
+              <label class="form-check-label" for="pgto_adiantado" value="{{pgto_adiantado}}"> Pago adiantado </label>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="form-check form-switch" id="is_active">
+                <input
+                    class="form-check-input "
+                    type="checkbox"
+                    name="os_finalizada"
+                />
+              <label class="form-check-label" for="os_finalizada" value="{{os_finalizada}}"> OS fechada </label>
+            </div>
+        </div>
+
+    </div>
+    
+    <p></p>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+    </div>
+    <div class="col-12"></div>
+  </form>
+  <div class="col-1">
+    <a href="{% url 'work_order' %}" id="canc_btn" type="submit" class="btn btn-danger">cancelar</a>
+  </div>
+</div>
+<script src="{% static 'work_order/js/script.js'%}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/accounting.js/0.4.1/accounting.min.js"></script>
+
+{% endblock%}

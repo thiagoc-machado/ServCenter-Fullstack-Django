@@ -1,0 +1,47 @@
+.row {
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 0;
+  } 
+  #cad_cli_tit {
+    margin-top: 0px;
+    font-size: 2vh;
+    font-weight: 500;
+    margin-left: 10px;
+  }
+  #btn_nc,
+  #btn_ac {
+    font-size: 1vh;
+    margin: 0px 0px 5px 12px;
+  }
+
+  
+  @media (min-width: 992px) {
+    .row {
+      margin-left: 200px;
+      margin-right: 1.5px;
+      background-color: aliceblue;
+    }
+    #cad_cli_tit {
+      margin-top: -50px;
+      font-size: 3vh;
+      font-weight: 500;
+      border: 0;
+      padding: 0;
+      margin-bottom: 20px;
+  
+    }
+    #btn_nc,
+    #btn_ac {
+      padding: 10px;
+      font-size: 1.5vh;
+      margin: 0px 0px 5px 12px;
+    }
+    .campos{
+        margin: 0px;
+        padding: 10px;
+        background-color: aliceblue;
+    }
+    
+  }
+  

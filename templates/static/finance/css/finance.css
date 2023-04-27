@@ -1,0 +1,129 @@
+.all {
+  margin-left: 0px;
+  margin-right: 0px;
+  padding: 0;
+}
+.items{
+  display: flex;
+  justify-content: space-between;
+}
+.cards_fin, .fin-subt2 {
+  font-size: 2vh;
+}
+#cad_cli_tit {
+  margin-left: 10px;
+  margin-top: 0px;
+  font-size: 2vh;
+  font-weight: 500;
+}
+.cards_fin{
+  text-align: center;
+}
+
+#btn_nc,
+#btn_ac {
+  width: 100%;
+}
+#btn_ed,
+#btn_ap,
+#btn_wz {
+  width: 20px;
+  font-size: 1vh;
+  padding: 3px;
+  justify-content: center;
+}
+
+#table_cli {
+  font-size: 1.5vh;
+  width: auto;
+}
+
+#acoes_th {
+  min-width: 40px;
+}
+#fin_table th a{
+  text-decoration: none;
+  color: black;
+  font-weight: 100;
+}
+
+.grfc{
+
+  background-color: aliceblue;
+}
+.graph_pie_block{
+  background-color: aliceblue;
+  padding: 10px;
+  border-radius: 10px;
+}
+.pie_graph{
+  padding: 10px;
+}
+
+@media (min-width: 992px) {
+  .all {
+    margin-left: 200px;
+    margin-right: 1.5px;
+  }
+  #cad_cli_tit {
+    margin-top: -50px;
+    font-size: 3vh;
+    font-weight: 500;
+    border: 0;
+    padding: 0;
+    margin-bottom: 20px;
+  }
+  #btn_nc,
+  #btn_ac {
+    padding: 10px;
+    font-size: 1.5vh;
+    margin: 0px 0px 5px 12px;
+  }
+  .fin-card-header {
+    text-align: center;
+    padding: 5px;
+  }
+  .fin-subt3,
+  .fin-subt2 {
+    text-align: center;
+  }
+  .cards_fin{
+    text-align: center;
+  }
+
+
+  #btn_ed,
+  #btn_ap,
+  #btn_wz {
+    width: 30px;
+    font-size: 1.5vh;
+    padding: 3px;
+  }
+  #op1 {
+    background: rgb(176, 255, 176);
+  }
+  #op2 {
+    background: rgb(255, 176, 176);
+  }
+  #op3 {
+    background: rgb(176, 234, 255);
+  }
+  #op4 {
+    background: rgb(222, 176, 255);
+  }
+
+  #table_cli {
+    font-size: 2vh;
+  }
+  #acoes_th {
+    width: 120px;
+  }
+  .btn-block {
+    width: 100%;
+}
+.items{
+  display: flex;
+  justify-content: space-between;
+}
+
+}

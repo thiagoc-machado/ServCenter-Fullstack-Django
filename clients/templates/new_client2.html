@@ -1,0 +1,20 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/new_client.css' %}" />
+{% endblock %} {% block 'main' %}
+<div class="main">
+  <div id="cad_cli_tit">
+    <a>Cadastro de clientes</a>
+  </div>
+
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+  <form action="{% url 'new_client' %}" method="POST">
+    {%csrf_token%} {{form.as_p}}
+    <input type="submit" class="btn btn-success" value="Salvar" />
+  </form>
+</div>
+{% endblock%}

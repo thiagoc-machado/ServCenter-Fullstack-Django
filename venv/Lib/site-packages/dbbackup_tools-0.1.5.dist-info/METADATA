@@ -1,0 +1,52 @@
+Metadata-Version: 2.1
+Name: dbbackup-tools
+Version: 0.1.5
+Summary: Package dbbackup to manage server database backups
+Home-page: https://github.com/EmmanuelDiscors?tab=repositories
+License: MIT
+Keywords: backup,restore,databases,Mysql,PostgreSQL
+Author: Emmanuel DISCORS
+Author-email: e.discors.perso@gmail.com
+Maintainer: Emmanuel DISCORS
+Maintainer-email: e.discors.perso@gmail.com
+Requires-Python: >=3.6,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: System :: Archiving :: Backup
+Project-URL: Bug Tracker, https://github.com/EmmanuelDiscors/backup-systems/issues
+Project-URL: Repository, https://github.com/EmmanuelDiscors?tab=repositories
+Description-Content-Type: text/markdown
+
+# dbbackup-tools 
+Tool to create a new dbbackup folder
+
+pip install dbbackup
+
+dbbackup-tools is instaled with dbbackup dependencies
+
+Run it:
+- python
+- import dbbackup_tools.util
+- Enter your folder name to hold dbbackup configuration
+- cd to your new dbbackup folder
+
+Configuration:
+- ajust the file .env to match your local configration
+
+- To logging on smtp, rename and adjust:
+
+loggin_config_example.yaml to loggin_config.yaml
+
+- To backup Mysql databases, rename and adjust:
+
+mysql-backup-script_example.config to mysql-backup-script.config
+
+Work with it:
+- python
+- import dbbackup
+- from dbbackup import check_dbbackup
+

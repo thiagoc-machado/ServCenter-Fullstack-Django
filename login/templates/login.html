@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css"
+      rel="stylesheet"
+      id="bootstrap-css"
+    />
+
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <link href="{% static 'css/login.css' %}" rel="stylesheet" />
+    <title>ServCenter - Login</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+          <div class="panel panel-login">
+            <div class="panel-heading">
+              <div class="row">
+                <div class="col-xs-6">
+                  <img id="logo" src="{{ config.logo1.url }}" alt="" />
+                </div>
+              </div>
+              <hr />
+            </div>
+
+            {% if messages %}
+            <br />
+            {% for message in messages %}
+            <div class="alert {{message.tags}}">{{message}}</div>
+            {% endfor %} {% endif %}
+
+            <div class="panel-body">
+              <div class="row">
+                <div class="col-lg-12">
+                  <form
+                    id="login-form"
+                    action="{% url 'login' %}"
+                    method="POST"
+                    role="form"
+                    style="display: block"
+                  >
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <input
+                        type="text"
+                        name="username"
+                        id="username"
+                        tabindex="1"
+                        class="form-control"
+                        placeholder="Nome de usuário"
+                        value=""
+                      />
+                    </div>
+                    <div class="form-group">
+                      <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        tabindex="2"
+                        class="form-control"
+                        placeholder="Senha"
+                      />
+                    </div>
+                    <div class="form-check form-switch">
+                      <input
+                        type="checkbox"
+                        tabindex="3"
+                        class=""
+                        name="remember"
+                        id="remember"
+                      />
+                      <label for="remember">Lembre-se de mim</label>
+                    </div>
+                    <div class="form-group">
+                      <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3">
+                          <a href="main.html">
+                            <input
+                              type="submit"
+                              name="login-submit"
+                              id="login-submit"
+                              tabindex="2"
+                              class="form-control btn btn-login"
+                              value="Entrar"
+                          /></a>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                  {% comment %}
+                  <a href="main.html">
+                    <input
+                      type="submit"
+                      name="login-submit"
+                      id="login-submit"
+                      tabindex="4"
+                      class="form-control btn btn-login"
+                      value="Entrar"
+                  /></a>
+                  {% endcomment %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="{% static 'usuarios/js/login.js' %}"></script>
+  </body>
+</html>

@@ -1,0 +1,98 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'clients/css/new_client.css' %}" />
+{% endblock %} {% block 'main' %}
+<div id="main" class="main">
+  <div id="cad_cli_tit">
+    <a>Saída avulsa no caixa</a>
+  </div>
+  <p></p>
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <form class="row g-6 all" action="{% url 'new_finance_out' %}" method="POST" enctype="multipart/form-data">
+    {%csrf_token%}
+
+    <div class="col-md-1">
+      <label for="inputCod" class="form-label">Cod</label>
+      <input
+        type="number"
+        readonly
+        class="form-control"
+        placeholder="Auto"
+        name="inputCod"
+      />
+    </div>
+    <div class="col-md-11">
+      <label for="inputObs" class="form-label">Observação</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Observação"
+        name="inputObs"
+        value="{{obs}}"
+      />
+    </div>
+    <div class="col-md-10">
+      <label for="inputNome" class="form-label">Nome</label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Nome"
+        name="inputNome"
+        value="{{nome}}"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="imputData" class="form-label">Data</label>
+      <input type="date" class="form-control" name="inputData" value="{{data}}" />
+    </div>
+    <div class="col-md-2">
+      <label for="inputValor" class="form-label">Valor</label>
+      <input
+        type="number" 
+        step="0.01"
+        min="0.00"
+        class="form-control"
+        placeholder="Valor"
+        name="inputValor"
+        value="{{valor}}"
+        step="any"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="inputTipoPgto" class="form-label">Modo de pagamento</label>
+      <select name="inputTipoPgto" class="form-select" value="{{inputTipoPgto}}">
+        <option selected>{{inputTipoPgto}}</option>
+        <option>Dinheiro</option>
+        <option>PIX</option>
+        <option>Crédito</option>
+        <option>Débito</option>
+        <option>Depósito</option>
+        <option>Boleto</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label for="inputCategoria_out" class="form-label">Categoria</label>
+      <select name="inputCategoria_out" class="form-select" value="{{inputCategoria_out}}">
+        {% for cat in categoria %}
+        <option>{{cat}}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <br />
+    <i></i>
+    <br />
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Salvar</button>
+    </div>
+    <div class="col-12"></div>
+  </form>
+  <div class="col-1">
+    <a href="{% url 'finance' %}" id="canc_btn" type="submit" class="btn btn-danger">cancelar</a>
+  </div
+</div>
+{% endblock%}

@@ -1,0 +1,38 @@
+.main {
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  padding: 0;
+}
+#cad_cli_tit a {
+  margin-top: -4px;
+  font-size: 3vh;
+  font-weight: 500;
+  border-radius: 10px;
+}
+#cli_atv {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+#canc_btn {
+  margin-top: -67px;
+  margin-left: 80px;
+}
+
+@media (min-width: 992px) {
+  .main {
+    margin-left: 210px;
+    margin-right: 10px;
+  }
+  #cad_cli_tit {
+    margin-top: -50px;
+    font-size: 3vh;
+    font-weight: 500;
+    border: 0;
+    padding: 0;
+  }
+  #canc_btn {
+    margin-top: -65px;
+    margin-left: 80px;
+  }
+}
