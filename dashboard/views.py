@@ -53,7 +53,7 @@ def dashboard(request):
         today = timezone.localtime(timezone= br_tz).date()
         all_finance = Finance.objects.all()
         finance = Finance.objects.filter(data=today)
-        qtd = finance.count()
+        qtd = finance.filter(movimento='entrada').count()
         values_by_hour = get_values_by_hour()
         output_by_hour = get_output_by_hour()
 
@@ -73,13 +73,13 @@ def dashboard(request):
 
         finance_minus = finance_min * -1
         finance_total = finance_sum - finance_minus
-        
-        
+        print('{:.2f}'.format(finance_sum))
+        print(round(float(finance_minus), 2))
         return render(request, 'dashboard.html', {'finance': finance,
                                                   'all_finance': all_finance,
-                                                  'finance_sum': round(finance_sum,2),
-                                                  'finance_minus': round(finance_minus,2),
-                                                  'finance_total': round(finance_total,2),
+                                                  'finance_sum': '{:.2f}'.format(finance_sum),
+                                                  'finance_minus': '{:.2f}'.format(finance_minus),
+                                                  'finance_total': '{:.2f}'.format(finance_total),
                                                   'qtd': qtd,
                                                   'values_by_hour': values_by_hour,
                                                   'output_by_hour': output_by_hour
