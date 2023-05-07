@@ -93,7 +93,7 @@ def finance_dia(request):
             total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
         else:
             total_deposit = 0
-            
+
         caixa = Caixa.objects.all()
         
 
@@ -354,6 +354,8 @@ def new_finance_out(request):
 def edit_finance(request, id):
 
     if request.method == 'GET':
+        categoria_out = Categoria_out.objects.all()
+        categoria_in = Categoria_in.objects.all()
         return render(request, 'edit_finance.html', {
             'id': Finance.objects.get(id=id).id,  # type: ignore
             'obs': Finance.objects.get(id=id).obs,
@@ -362,6 +364,9 @@ def edit_finance(request, id):
             'valor': Finance.objects.get(id=id).valor,
             'movimento': Finance.objects.get(id=id).movimento,
             'tipo_pgto': Finance.objects.get(id=id).tipo_pgto,
+            'categoria': Finance.objects.get(id=id).categoria,
+            'categoria_out': categoria_out,
+            'categoria_in': categoria_in,
         })
 
     elif request.method == "POST":

@@ -21,7 +21,7 @@
       <input
         type="number"
         readonly
-        class="form-control"
+        class="form-control" 
         placeholder="Auto"
         name="inputCod"
         value='{{id}}'
@@ -73,7 +73,31 @@
         <option>Boleto</option>
       </select>
     </div>
-    <div >
+    {% if movimento == 'entrada' %}
+      <div class="col-md-2">
+        <label for="inputCategoria_in" class="form-label">Categoria</label>
+        <select name="inputCategoria_in" class="form-select" value="{{Categoria}}">
+          <option selected>{{categoria}}</option>
+          {% for cat in categoria_in %}
+          <option>{{cat.categoria}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div >
+    {% else %}
+      <div class="col-md-2">
+        <label for="inputCategoria" class="form-label">Categoria</label>
+        <select name="inputCategoria" class="form-select" value="{{Categoria}}">
+          <option selected>{{categoria}}</option>
+          {% for cat in categoria_out %}
+          <option>{{cat.categoria}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div >
+    {% endif %}
+
+
         <div class="col-12  checkbox">
             <i>Saída </i>
             <div class="form-check form-switch" id="is_active">
@@ -98,6 +122,6 @@
   </form>
   <div class="col-1">
     <a href="{% url 'finance' %}" id="canc_btn" type="submit" class="btn btn-danger">cancelar</a>
-  </div
+  </div>
 </div>
 {% endblock%}
