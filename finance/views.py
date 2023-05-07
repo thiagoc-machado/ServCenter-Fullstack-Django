@@ -74,6 +74,8 @@ def finance(request):
 
 
         tot = tot_in()
+        if total_dep == None:
+            total_dep = 0
         gaveta = tot - total_dep 
 
 
@@ -137,8 +139,11 @@ def finance_dia(request):
 
 
         tot = tot_in()
+        if total_dep == None:
+            total_dep = 0
         gaveta = tot - total_dep 
-        return render(request, 'finance_dia.html', {'finance': finance,
+        gaveta = tot - total_dep 
+        return render(request, 'finance_dia.html', {'finance': finance, 
                                                     'finance_all': finance_all,
                                                     'finance_sum': '{:.2f}'.format(finance_sum),
                                                     'finance_minus': '{:.2f}'.format(finance_minus),
