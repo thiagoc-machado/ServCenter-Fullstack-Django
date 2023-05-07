@@ -19,10 +19,11 @@ def finance(request):
     if request.method == 'POST':
 
         deposits = request.POST.get('deposits')
-
-        total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] + float(deposits) or 0
-        total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
-
+        if Caixa.objects.aggregate(total=Sum('deposits'))['total'] != None:
+            total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] + float(deposits) or 0
+            total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
+        else:
+            total_deposits = 0
         caixa = Caixa.objects.all()
         
 
@@ -87,10 +88,12 @@ def finance_dia(request):
     if request.method == 'POST':
 
         deposits = request.POST.get('deposits')
-
-        total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] + float(deposits) or 0
-        total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
-
+        if Caixa.objects.aggregate(total=Sum('deposits'))['total'] != None:
+            total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] + float(deposits) or 0
+            total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
+        else:
+            total_deposit = 0
+            
         caixa = Caixa.objects.all()
         
 
