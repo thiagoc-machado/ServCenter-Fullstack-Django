@@ -1,0 +1,68 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'finance/css/finance.css' %}" />
+{% endblock %} {% block 'main' %}
+<div class="row all">
+  <div id="cad_cli_tit">
+    <a>Depositos</a>
+  </div>
+
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  
+  <div class="col-md-12 mb-3">
+    <div class="card">
+      <div class="card-header">
+        <span><i class="bi bi-table me-2"></i></span> Depositos
+      </div>
+      <div class="card-body">
+        <div id="table_cli" class="table-responsive">
+          <table
+            id="example"
+            class="table table-striped data-table"
+            style="width: 100%"
+          >
+            <thead>
+              <tr>
+                <th>Cod.</th>
+                <th>Valor Depositado</th>
+                <th>Data do deposito</th>
+                <th>Obs</th>
+                <th>Saldo</th>
+                <th id="acoes_th">Apagar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for deposit in deposits %}
+              <tr id="fin_table">
+                <th>{{ deposit.id }}</a></th>
+                <th>{{ deposit.deposits }}</a></th>
+                <th>{{ deposit.date }}</a></th>
+                <th>{{ deposit.obs }}</a></th>
+                <th>{{ deposit.saldo }}</a></th>
+                <th>
+                  <a
+                    href="{% url 'del_deposit' deposit.id %}"
+                    id="btn_ap"
+                    type="button"
+                    class="btn btn-danger delete"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </th>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{% static 'clients/js/script.js'%}"></script>
+{% endblock%}

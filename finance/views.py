@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.messages import constants
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseBadRequest
-from finance.models import Finance, Categoria_in, Categoria_out
+from finance.models import Finance, Categoria_in, Categoria_out, Caixa
 from datetime import date, datetime, timedelta
 from django.contrib.auth.decorators import user_passes_test, login_required
 import pytz
@@ -11,71 +11,142 @@ from django.utils import timezone
 import matplotlib.pyplot as plt
 from io import BytesIO
 import json
+from django.db.models import Sum
 
 
 @user_passes_test(lambda u: u.is_superuser)
 def finance(request):
-    finance = Finance.objects.all
+    if request.method == 'POST':
 
-    total_dia = '{:.2f}'.format(diario()[0])
-    entrada_dia = '{:.2f}'.format(diario()[2])
-    saida_dia = '{:.2f}'.format(diario()[1])
+        deposits = request.POST.get('deposits')
 
-    total_sem = '{:.2f}'.format(semanal()[0])
-    entrada_sem = '{:.2f}'.format(semanal()[2])
-    saida_sem = '{:.2f}'.format(semanal()[1])
+        total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] + float(deposits) or 0
+        total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
 
-    total_mes = '{:.2f}'.format(mensal()[0])
-    entrada_mes = '{:.2f}'.format(mensal()[2])
-    saida_mes = '{:.2f}'.format(mensal()[1])
+        caixa = Caixa.objects.all()
+        
 
-    total_ano = '{:.2f}'.format(anual()[0])
-    saida_ano = '{:.2f}'.format(anual()[2])
-    entrada_ano = '{:.2f}'.format(anual()[1])
+        if deposits != '':
+            caixa = Caixa(deposits=deposits, date=date.today(), obs='Depósito', saldo=total_deposits)
+            caixa.save()
+            messages.add_message(request, constants.SUCCESS,
+                                 'Depósito lançado com sucesso!')
+        else:
+            messages.add_message(request, constants.ERROR,
+                                 'Nenhum valor foi inserido!')
 
-    chart = finance_chart()
-    chart_ano = finance_year_chart()
-    pie_mes_in = pie_chart_mes_in()
-    pie_ano_in = pie_chart_ano_in()
-    pie_mes_out = pie_chart_mes_out()
-    pie_ano_out = pie_chart_ano_out()  
-    dates, entradas, saidas = finance_chart()
-    
-    return render(request, 'finance.html', {'saidas_json': json.dumps(saidas), 'entradas_json': json.dumps(entradas), 'dates_json': json.dumps(dates), 'finance': finance, 'total_dia': total_dia, 'total_sem': total_sem, 'total_mes': total_mes, 'total_ano': total_ano, 'saida_ano': saida_ano, 'entrada_ano': entrada_ano, 'entrada_dia': entrada_dia, 'saida_dia': saida_dia, 'entrada_sem': entrada_sem, 'saida_sem': saida_sem, 'entrada_mes': entrada_mes, 'saida_mes': saida_mes, 'dates': chart[0], 'entradas': chart[1], 'saidas': chart[2], 'months': chart_ano[0], 'in_mes': chart_ano[1], 'out_mes': chart_ano[2], 'pie_mes_in': pie_mes_in, 'pie_ano_in': pie_ano_in, 'pie_mes_out': pie_mes_out, 'pie_ano_out': pie_ano_out})
+
+        return redirect('/finance')
+    else:
+        br_tz = pytz.timezone('America/Sao_Paulo')
+        today = timezone.localtime(timezone=br_tz).date()
+        finance = Finance.objects.all
+
+        total_dia = '{:.2f}'.format(diario()[0])
+        entrada_dia = '{:.2f}'.format(diario()[2])
+        saida_dia = '{:.2f}'.format(diario()[1])
+
+        total_sem = '{:.2f}'.format(semanal()[0])
+        entrada_sem = '{:.2f}'.format(semanal()[2])
+        saida_sem = '{:.2f}'.format(semanal()[1])
+
+        total_mes = '{:.2f}'.format(mensal()[0])
+        entrada_mes = '{:.2f}'.format(mensal()[2])
+        saida_mes = '{:.2f}'.format(mensal()[1])
+
+        total_ano = '{:.2f}'.format(anual()[0])
+        saida_ano = '{:.2f}'.format(anual()[2])
+        entrada_ano = '{:.2f}'.format(anual()[1])
+
+        chart = finance_chart()
+        chart_ano = finance_year_chart()
+        pie_mes_in = pie_chart_mes_in()
+        pie_ano_in = pie_chart_ano_in()
+        pie_mes_out = pie_chart_mes_out()
+        pie_ano_out = pie_chart_ano_out()  
+        dates, entradas, saidas = finance_chart()
+
+        caixas_do_dia = Caixa.objects.filter(date=today).aggregate(total=Sum('deposits'))['total'] or 0
+
+        total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] or 0
+        total_dep = Caixa.objects.aggregate(total=Sum('deposits'))['total']
+        total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
+
+
+        tot = tot_in()
+        gaveta = tot - total_dep 
+
+
+        return render(request, 'finance.html', {'finance': finance, 'gaveta' : '{:.2f}'.format(gaveta), 'caixas_do_dia' : '{:.2f}'.format(caixas_do_dia) , 'saidas_json': json.dumps(saidas), 'entradas_json': json.dumps(entradas), 'dates_json': json.dumps(dates), 'finance': finance, 'total_dia': total_dia, 'total_sem': total_sem, 'total_mes': total_mes, 'total_ano': total_ano, 'saida_ano': saida_ano, 'entrada_ano': entrada_ano, 'entrada_dia': entrada_dia, 'saida_dia': saida_dia, 'entrada_sem': entrada_sem, 'saida_sem': saida_sem, 'entrada_mes': entrada_mes, 'saida_mes': saida_mes, 'dates': chart[0], 'entradas': chart[1], 'saidas': chart[2], 'months': chart_ano[0], 'in_mes': chart_ano[1], 'out_mes': chart_ano[2], 'pie_mes_in': pie_mes_in, 'pie_ano_in': pie_ano_in, 'pie_mes_out': pie_mes_out, 'pie_ano_out': pie_ano_out})
 
  
 @login_required
 def finance_dia(request):
-    br_tz = pytz.timezone('America/Sao_Paulo')
-    today = timezone.localtime(timezone=br_tz).date()
-    finance = Finance.objects.filter(data=today)
-    finance_all = Finance.objects.all()
-    qtd = finance.count()
-    finance_sum = 0
-    finance_min = 0
-    for finances in Finance.objects.filter(data=today):
-        if finances.movimento == 'entrada':
-            valor = finances.valor
-            if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_sum += valor
-        elif finances.movimento == 'saída':
-            valor = finances.valor
-            if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_min -= valor
+    if request.method == 'POST':
 
-    finance_minus = finance_min * -1
-    finance_tot = finance_sum - finance_minus
-    finance_total = round(finance_tot, 2)
+        deposits = request.POST.get('deposits')
 
-    return render(request, 'finance_dia.html', {'finance': finance,
-                                                'finance_all': finance_all,
-                                                'finance_sum': '{:.2f}'.format(finance_sum),
-                                                'finance_minus': '{:.2f}'.format(finance_minus),
-                                                'finance_total': '{:.2f}'.format(finance_total),
-                                                'qtd': qtd
-                                                })
+        total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] + float(deposits) or 0
+        total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
+
+        caixa = Caixa.objects.all()
+        
+
+        if deposits != '':
+            caixa = Caixa(deposits=deposits, date=date.today(), obs='Depósito', saldo=total_deposits)
+            caixa.save()
+            messages.add_message(request, constants.SUCCESS,
+                                 'Depósito lançado com sucesso!')
+        else:
+            messages.add_message(request, constants.ERROR,
+                                 'Nenhum valor foi inserido!')
+
+
+        return redirect('/finance')
+    else:
+
+       
+        br_tz = pytz.timezone('America/Sao_Paulo')
+        today = timezone.localtime(timezone=br_tz).date()
+        finance = Finance.objects.filter(data=today)
+        finance_all = Finance.objects.all()
+        qtd = finance.count()
+        finance_sum = 0
+        finance_min = 0
+        for finances in Finance.objects.filter(data=today):
+            if finances.movimento == 'entrada':
+                valor = finances.valor
+                if valor is not None:
+                    valor = float(valor.replace('R$', '').replace(',', '.'))
+                    finance_sum += valor
+            elif finances.movimento == 'saída':
+                valor = finances.valor
+                if valor is not None:
+                    valor = float(valor.replace('R$', '').replace(',', '.'))
+                    finance_min -= valor
+
+        finance_minus = finance_min * -1
+        finance_tot = finance_sum - finance_minus
+        finance_total = round(finance_tot, 2)
+
+        caixas_do_dia = Caixa.objects.filter(date=today).aggregate(total=Sum('deposits'))['total'] or 0
+
+        total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] or 0
+        total_dep = Caixa.objects.aggregate(total=Sum('deposits'))['total']
+        total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
+
+
+        tot = tot_in()
+        gaveta = tot - total_dep 
+        return render(request, 'finance_dia.html', {'finance': finance,
+                                                    'finance_all': finance_all,
+                                                    'finance_sum': '{:.2f}'.format(finance_sum),
+                                                    'finance_minus': '{:.2f}'.format(finance_minus),
+                                                    'finance_total': '{:.2f}'.format(finance_total),
+                                                    'qtd': qtd,
+                                                    'caixas_do_dia' : '{:.2f}'.format(caixas_do_dia), 
+                                                    'gaveta' : '{:.2f}'.format(gaveta),
+                                                    })
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -690,3 +761,34 @@ def pie_chart_ano_out():
     graphic = graphic.decode('utf-8')
 
     return graphic
+
+def deposit_list(request):
+    deposits = Caixa.objects.all()   
+    return render(request, 'deposits.html', {'deposits': deposits})
+
+def del_deposit(request, id):
+    deposit = Caixa.objects.get(id=id)
+    deposit.delete()
+    messages.add_message(request, constants.SUCCESS,
+                         'Deposito apagado com sucesso')
+    return redirect('deposit_list')
+
+def tot_in():
+
+    finance_sum = 0
+    finance_min = 0
+    for finances in Finance.objects.all():
+        if finances.movimento == 'entrada':
+            valor = finances.valor
+            if valor is not None:
+                valor = float(valor.replace('R$', '').replace(',', '.'))
+                finance_sum += valor
+        elif finances.movimento == 'saída':
+            valor = finances.valor
+            if valor is not None:
+                valor = float(valor.replace('R$', '').replace(',', '.'))
+                finance_min -= valor
+    finance_minus = finance_min * -1
+    finance_tot = finance_sum - finance_minus
+    finance_total = round(finance_tot, 2)
+    return finance_total

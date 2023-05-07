@@ -1,6 +1,6 @@
 {% extends "main.html" %} {% load static %} {% block 'head' %}
 <link rel="stylesheet" href="{% static 'css/main.css' %}" />
-<link rel="stylesheet" href="{% static 'finance/css/finance.css' %}" />
+<link rel="stylesheet" href="{% static 'finance_dia/css/finance_dia.css' %}" />
 {% endblock %} {% block 'main' %}
 <div class="row all">
   <div id="cad_cli_tit">
@@ -13,33 +13,73 @@
   <div class="alert {{message.tags}}">{{message}}</div>
   {% endfor %} {% endif %}
 
-  <div class="col-md-4 mb-3">
-    <div class="card bg-success text-white">
-      <h5 class="fin-card-header">
-        Entradas de Hoje
-        <h3 id="fin-subt2">R$ {{finance_sum}}</h3>
-      </h5>
+  <div class="row">
+    <div class="col-md-2 mb-3">
+      <div class="card bg-success text-white cards">
+        <h5 class="fin-card-header">
+          Entradas de Hoje
+          <h3 id="fin-subt2">R$ {{finance_sum}}</h3>
+        </h5>
+      </div>
+    </div>
+    <div class="col-md-2 mb-3">
+      <div class="card bg-danger text-white cards">
+        <h5 class="fin-card-header">
+          Saídas de Hoje
+          <h3 id="fin-subt3">R$ {{ finance_minus }}</h3>
+        </h5>
+      </div>
+    </div>
+    <div class="col-md-2 mb-3">
+      <div class="card bg-primary text-white cards">
+        <h5 class="fin-card-header">
+          Total de Hoje
+          <h3 id="fin-subt3">R$ {{ finance_total }}</h3>
+        </h5>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card border-primary cards">
+        <h5 class="fin-card-header text-center">
+          <i class="cards_fin">Lançar depósito</i>
+          <form class="row g-6" action="{% url 'finance' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="items mb-3 w-100">
+              <input type="number" name="deposits" min="1" class="cards_fin p-0 form-control">
+            </div>
+            <div class="items mt-3 w-100">
+              <button type="submit" class="btn btn-primary btn-block">lançar deposito</button>
+            </div>
+          </form>
+        </h5>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <a href="{% url 'deposit_list' %}">
+        <div class="card border-primary cards">
+          <h4 class="fin-card-header p-2 caixa">
+            <i class="cards_fin">Caixa</i>
+            <div class="items p-1">
+              <i class="cards_fin">Gaveta</i>
+              <h5 class="fin-subt2">R$ {{gaveta}}</h5>
+            </div>
+            <div class="items p-1">
+              <i class="cards_fin">Depositos hj</i>
+              <h5 class="fin-subt2" nema="total_deposits" value="{{total_deposits}}"> R$ {{caixas_do_dia}}</h5>
+            </div>
+            <div class="items">
+            </div>
+          </h4>
+        </div>
+      </a>
     </div>
   </div>
-  <div class="col-md-4 mb-3">
-    <div class="card bg-danger text-white">
-      <h5 class="fin-card-header">
-        Saídas de Hoje
-        <h3 id="fin-subt3">R$ {{ finance_minus }}</h3>
-      </h5>
-    </div>
-  </div>
-  <div class="col-md-4 mb-3">
-    <div class="card bg-primary text-white">
-      <h5 class="fin-card-header">
-        Total de Hoje
-        <h3 id="fin-subt3">R$ {{ finance_total }}</h3>
-      </h5>
-    </div>
-  </div>
+  
 
-  <div class="actions_bar row">
-    <div class="col-md-2">
+  
+
+  <div class="actions_bar row ">
+    <div class="col-md-2 btns">
       <a
         href="{% url 'new_finance' %}"
         class="btn btn-success btn-block"
@@ -47,7 +87,7 @@
         >Entrada avulsa no caixa</a
       >
     </div>
-    <div class="col-md-2">
+    <div class="col-md-2 btns">
       <a
         href="{% url 'new_finance_out' %}"
         class="btn btn-danger btn-block"
@@ -55,7 +95,7 @@
         >Saída avulsa no caixa</a
       >
     </div>
-    <div class="col-md-2">
+    <div class="col-md-2 btns">
       <a
         href="{% url 'finance_xlrx' id=1 %}"
         class="btn btn-primary btn-block"
@@ -63,7 +103,7 @@
         >Exportar movimentação</a
       >
     </div>
-    <div class="col-md-1">
+    <div class="col-md-1 btns">
       <a
         href="{% url 'finance_dia' %}"
         class="btn btn-dark btn-block"
@@ -71,7 +111,7 @@
         >Diario</a
       >
     </div>
-    <div class="col-md-1">
+    <div class="col-md-1 btns">
       <a
         href="{% url 'finance_sem' %}"
         class="btn btn-dark btn-block"
@@ -79,7 +119,7 @@
         >Semanal</a
       >
     </div>
-    <div class="col-md-1">
+    <div class="col-md-1 btns">
       <a
         href="{% url 'finance_mes' %}"
         class="btn btn-dark btn-block"
@@ -87,7 +127,7 @@
         >Mensal</a
       >
     </div>
-    <div class="col-md-1">
+    <div class="col-md-1 btns">
       <a
         href="{% url 'finance_ano' %}"
         class="btn btn-dark btn-block"
@@ -95,7 +135,7 @@
         >Anual</a
       >
     </div>
-    <div class="col-md-1">
+    <div class="col-md-1 btns">
       <a
         href="{% url 'finance_tot' %}"
         class="btn btn-dark btn-block"
@@ -103,7 +143,7 @@
         >Total</a
       >
     </div>
-  </div>
+  
   <div class="col-md-12 mb-3">
     <div class="card">
       <div class="card-header">

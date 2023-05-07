@@ -26,5 +26,10 @@ class Categoria_in(models.Model):
 class Categoria_out(models.Model):
     categoria = models.CharField(max_length=10, null=True, blank=True)
 
+class Caixa(models.Model):
+    deposits = models.CharField(max_length=10, null=True, blank=True)
+    date = models.DateField(blank=True)
+    obs = models.CharField(max_length=6, blank=True, null=True)
+    saldo = models.CharField(max_length=10, null=True, blank=True)
     def __str__(self):
-        return self.categoria
+        return self.deposits

@@ -125,5 +125,13 @@
   display: flex;
   justify-content: space-between;
 }
+.lanc{
+  padding: 0;
+  margin: 0;
+}
+.caixa{
+  margin-right: -50px;
+
+}
 
 }
