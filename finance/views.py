@@ -791,12 +791,12 @@ def tot_in():
     finance_sum = 0
     finance_min = 0
     for finances in Finance.objects.all():
-        if finances.movimento == 'entrada':
+        if finances.movimento == 'entrada' and finances.tipo_pgto == 'Dinheiro':
             valor = finances.valor
             if valor is not None:
                 valor = float(valor.replace('R$', '').replace(',', '.'))
                 finance_sum += valor
-        elif finances.movimento == 'saída':
+        elif finances.movimento == 'saída' and finances.tipo_pgto == 'Dinheiro':
             valor = finances.valor
             if valor is not None:
                 valor = float(valor.replace('R$', '').replace(',', '.'))
