@@ -79,7 +79,7 @@
       <label for="inputCategoria_out" class="form-label">Categoria</label>
       <select name="inputCategoria_out" class="form-select" value="{{inputCategoria_out}}">
         {% for cat in categoria %}
-        <option>{{cat}}</option>
+        <option>{{cat.categoria}}</option>
         {% endfor %}
       </select>
     </div>
@@ -93,6 +93,6 @@
   </form>
   <div class="col-1">
     <a href="{% url 'finance' %}" id="canc_btn" type="submit" class="btn btn-danger">cancelar</a>
-  </div
+  </div>
 </div>
 {% endblock%}

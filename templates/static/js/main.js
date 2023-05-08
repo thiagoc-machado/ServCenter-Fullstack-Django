@@ -49,7 +49,6 @@ var spinner = document.getElementById("spinner");
 window.addEventListener("beforeunload", function(event) {
   spinner.classList.remove("d-none");
   document.title = "ServCenter - Carregando...";
-  event.preventDefault();
 });
 
 // Oculta o spinner quando a página estiver carregada
