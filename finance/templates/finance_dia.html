@@ -42,7 +42,7 @@
       <div class="card border-primary cards">
         <h5 class="fin-card-header text-center">
           <i class="cards_fin">Lançar depósito</i>
-          <form class="row g-6" action="{% url 'finance' %}" method="POST" enctype="multipart/form-data">
+          <form class="row g-6" action="{% url 'finance_dia' %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="items mb-3 w-100">
               <input type="number" name="deposits" min="1" class="cards_fin p-0 form-control">

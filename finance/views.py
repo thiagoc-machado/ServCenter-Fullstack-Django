@@ -28,7 +28,9 @@ def finance(request):
         
 
         if deposits != '':
-            caixa = Caixa(deposits=deposits, date=date.today(), obs='Depósito', saldo=total_deposits)
+            tot = tot_in()
+            saldo = tot - total_deposit
+            caixa = Caixa(deposits=deposits, date=date.today(), obs='Depósito', saldo='R$ {:.2f}'.format(float(saldo)))
             caixa.save()
             messages.add_message(request, constants.SUCCESS,
                                  'Depósito lançado com sucesso!')
@@ -56,8 +58,8 @@ def finance(request):
         saida_mes = '{:.2f}'.format(mensal()[1])
 
         total_ano = '{:.2f}'.format(anual()[0])
-        saida_ano = '{:.2f}'.format(anual()[2])
-        entrada_ano = '{:.2f}'.format(anual()[1])
+        entrada_ano = '{:.2f}'.format(anual()[2])
+        saida_ano = '{:.2f}'.format(anual()[1])
 
         chart = finance_chart()
         chart_ano = finance_year_chart()
@@ -98,7 +100,9 @@ def finance_dia(request):
         
 
         if deposits != '':
-            caixa = Caixa(deposits=deposits, date=date.today(), obs='Depósito', saldo=total_deposits)
+            tot = tot_in()
+            saldo = tot - total_deposit
+            caixa = Caixa(deposits=deposits, date=date.today(), obs='Depósito', saldo='R$ {:.2f}'.format(float(saldo)))
             caixa.save()
             messages.add_message(request, constants.SUCCESS,
                                  'Depósito lançado com sucesso!')
@@ -107,7 +111,7 @@ def finance_dia(request):
                                  'Nenhum valor foi inserido!')
 
 
-        return redirect('/finance')
+        return redirect('finance_dia')
     else:
 
        

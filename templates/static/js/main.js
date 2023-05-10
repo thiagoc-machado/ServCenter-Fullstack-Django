@@ -54,5 +54,5 @@ window.addEventListener("beforeunload", function(event) {
 // Oculta o spinner quando a página estiver carregada
 window.addEventListener("load", function(event) {
   spinner.classList.add("d-none");
-  document.title = "ServCenter"; // Altere para o título correto da sua página
+  document.title = "ServCenter"; 
 });
