@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="D:\html\ServCenter2-master\venv"
+VIRTUAL_ENV="C:\Users\thiag\OneDrive\Desktop\projetos\ServCenter-Fullstack-Django\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
