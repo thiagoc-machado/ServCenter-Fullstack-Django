@@ -13,3 +13,4 @@ RUN python manage.py collectstatic --noinput
 RUN python manage.py migrate
 
 CMD ["gunicorn", "servcenter.wsgi:application"]
+
