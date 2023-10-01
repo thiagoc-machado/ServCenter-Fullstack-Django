@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-from typing import Iterable
+from typing import TYPE_CHECKING
 
 from poetry.core.packages.dependency import Dependency
+
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class VCSDependency(Dependency):
@@ -97,8 +101,7 @@ class VCSDependency(Dependency):
 
         return f"{what} {version}"
 
-    @property
-    def base_pep_508_name(self) -> str:
+    def _base_pep_508_name(self, *, resolved: bool = False) -> str:
         from poetry.core.vcs import git
 
         requirement = self.pretty_name
@@ -113,12 +116,24 @@ class VCSDependency(Dependency):
         else:
             requirement += f" @ {self._vcs}+ssh://{parsed_url.format()}"
 
-        if self.reference:
+        if resolved and self.source_resolved_reference:
+            requirement += f"@{self.source_resolved_reference}"
+        elif self.reference:
             requirement += f"@{self.reference}"
 
         if self._directory:
             requirement += f"#subdirectory={self._directory}"
 
+        return requirement
+
+    @property
+    def base_pep_508_name(self) -> str:
+        requirement = self._base_pep_508_name()
+        return requirement
+
+    @property
+    def base_pep_508_name_resolved(self) -> str:
+        requirement = self._base_pep_508_name(resolved=True)
         return requirement
 
     def is_vcs(self) -> bool:

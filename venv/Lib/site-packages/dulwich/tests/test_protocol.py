@@ -23,26 +23,25 @@
 
 from io import BytesIO
 
-from dulwich.errors import (
-    HangupException,
-)
-from dulwich.protocol import (
+from dulwich.tests import TestCase
+
+from ..errors import HangupException
+from ..protocol import (
+    MULTI_ACK,
+    MULTI_ACK_DETAILED,
+    SINGLE_ACK,
+    BufferedPktLineWriter,
     GitProtocolError,
     PktLineParser,
     Protocol,
     ReceivableProtocol,
+    ack_type,
     extract_capabilities,
     extract_want_line_capabilities,
-    ack_type,
-    SINGLE_ACK,
-    MULTI_ACK,
-    MULTI_ACK_DETAILED,
-    BufferedPktLineWriter,
 )
-from dulwich.tests import TestCase
 
 
-class BaseProtocolTests(object):
+class BaseProtocolTests:
     def test_write_pkt_line_none(self):
         self.proto.write_pkt_line(None)
         self.assertEqual(self.rout.getvalue(), b"0000")
@@ -119,7 +118,7 @@ class ProtocolTests(BaseProtocolTests, TestCase):
 class ReceivableBytesIO(BytesIO):
     """BytesIO with socket-like recv semantics for testing."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         BytesIO.__init__(self)
         self.allow_read_past_eof = False
 

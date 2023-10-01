@@ -1,5 +1,4 @@
 # test_reflog.py -- tests for reflog.py
-# encoding: utf-8
 # Copyright (C) 2015 Jelmer Vernooij <jelmer@jelmer.uk>
 #
 # Dulwich is dual-licensed under the Apache License, Version 2.0 and the GNU
@@ -23,16 +22,14 @@
 
 from io import BytesIO
 
-from dulwich.objects import ZERO_SHA
-from dulwich.reflog import (
+from dulwich.tests import TestCase
+
+from ..objects import ZERO_SHA
+from ..reflog import (
     drop_reflog_entry,
     format_reflog_line,
     parse_reflog_line,
     read_reflog,
-)
-
-from dulwich.tests import (
-    TestCase,
 )
 
 

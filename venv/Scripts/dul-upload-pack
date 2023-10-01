@@ -1,4 +1,4 @@
-#!D:\html\ServCenter2-master\venv\Scripts\python.exe
+#!C:\Users\thiag\OneDrive\Desktop\projetos\ServCenter-Fullstack-Django\venv\Scripts\python.exe
 # dul-upload-pack - git-upload-pack in python
 # Copyright (C) 2008 John Carr <john.carr@unrouted.co.uk>
 #
@@ -19,9 +19,10 @@
 # License, Version 2.0.
 #
 
-from dulwich.porcelain import upload_pack
 import os
 import sys
+
+from dulwich.porcelain import upload_pack
 
 if len(sys.argv) < 2:
     sys.stderr.write("usage: %s <git-dir>\n" % os.path.basename(sys.argv[0]))

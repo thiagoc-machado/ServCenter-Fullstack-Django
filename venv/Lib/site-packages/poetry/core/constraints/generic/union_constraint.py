@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import itertools
+
+from poetry.core.constraints.generic import AnyConstraint
 from poetry.core.constraints.generic.base_constraint import BaseConstraint
 from poetry.core.constraints.generic.constraint import Constraint
 from poetry.core.constraints.generic.empty_constraint import EmptyConstraint
@@ -63,6 +66,14 @@ class UnionConstraint(BaseConstraint):
 
         return their_constraint is None
 
+    def invert(self) -> MultiConstraint:
+        inverted_constraints = [c.invert() for c in self._constraints]
+        if any(not isinstance(c, Constraint) for c in inverted_constraints):
+            raise NotImplementedError(
+                "Inversion of complex union constraints not implemented"
+            )
+        return MultiConstraint(*inverted_constraints)  # type: ignore[arg-type]
+
     def intersect(self, other: BaseConstraint) -> BaseConstraint:
         if other.is_any():
             return self
@@ -71,40 +82,30 @@ class UnionConstraint(BaseConstraint):
             return other
 
         if isinstance(other, Constraint):
-            if self.allows(other):
-                return other
+            # (A or B) and C => (A and C) or (B and C)
+            # just a special case of UnionConstraint
+            other = UnionConstraint(other)
 
-            return EmptyConstraint()
-
-        # Two remaining cases: an intersection with another union, or an intersection
-        # with a multi.
-        #
-        # In the first case:
-        # (A or B) and (C or D) => (A and C) or (A and D) or (B and C) or (B and D)
-        #
-        # In the second case:
-        # (A or B) and (C and D) => (A and C and D) or (B and C and D)
         new_constraints = []
         if isinstance(other, UnionConstraint):
+            # (A or B) and (C or D) => (A and C) or (A and D) or (B and C) or (B and D)
             for our_constraint in self._constraints:
                 for their_constraint in other.constraints:
                     intersection = our_constraint.intersect(their_constraint)
 
-                    if (
-                        not intersection.is_empty()
-                        and intersection not in new_constraints
-                    ):
+                    if not (intersection.is_empty() or intersection in new_constraints):
                         new_constraints.append(intersection)
 
         else:
             assert isinstance(other, MultiConstraint)
+            # (A or B) and (C and D) => (A and C and D) or (B and C and D)
 
             for our_constraint in self._constraints:
                 intersection = our_constraint
                 for their_constraint in other.constraints:
                     intersection = intersection.intersect(their_constraint)
 
-                if not intersection.is_empty() and intersection not in new_constraints:
+                if not (intersection.is_empty() or intersection in new_constraints):
                     new_constraints.append(intersection)
 
         if not new_constraints:
@@ -115,32 +116,70 @@ class UnionConstraint(BaseConstraint):
 
         return UnionConstraint(*new_constraints)
 
-    def union(self, other: BaseConstraint) -> UnionConstraint:
-        if not isinstance(other, Constraint):
-            raise ValueError("Unimplemented constraint union")
+    def union(self, other: BaseConstraint) -> BaseConstraint:
+        if other.is_any():
+            return other
 
-        constraints = self._constraints
-        if other not in self._constraints:
-            constraints += (other,)
+        if other.is_empty():
+            return self
 
-        return UnionConstraint(*constraints)
+        if isinstance(other, Constraint):
+            # (A or B) or C => A or B or C
+            # just a special case of UnionConstraint
+            other = UnionConstraint(other)
+
+        new_constraints: list[BaseConstraint] = []
+        if isinstance(other, UnionConstraint):
+            # (A or B) or (C or D) => A or B or C or D
+            our_new_constraints: list[BaseConstraint] = []
+            their_new_constraints: list[BaseConstraint] = []
+            merged_new_constraints: list[BaseConstraint] = []
+            for their_constraint in other.constraints:
+                for our_constraint in self._constraints:
+                    union = our_constraint.union(their_constraint)
+                    if union.is_any():
+                        return AnyConstraint()
+                    if isinstance(union, Constraint):
+                        if union == our_constraint:
+                            if union not in our_new_constraints:
+                                our_new_constraints.append(union)
+                        elif union == their_constraint:
+                            if union not in their_new_constraints:
+                                their_new_constraints.append(their_constraint)
+                        elif union not in merged_new_constraints:
+                            merged_new_constraints.append(union)
+                    else:
+                        if our_constraint not in our_new_constraints:
+                            our_new_constraints.append(our_constraint)
+                        if their_constraint not in their_new_constraints:
+                            their_new_constraints.append(their_constraint)
+            new_constraints = our_new_constraints
+            for constraint in itertools.chain(
+                their_new_constraints, merged_new_constraints
+            ):
+                if constraint not in new_constraints:
+                    new_constraints.append(constraint)
+
+        else:
+            assert isinstance(other, MultiConstraint)
+            # (A or B) or (C and D) => nothing to do
+
+            new_constraints = [*self._constraints, other]
+
+        if len(new_constraints) == 1:
+            return new_constraints[0]
+
+        return UnionConstraint(*new_constraints)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, UnionConstraint):
             return False
 
-        return set(self._constraints) == set(other._constraints)
+        return self._constraints == other._constraints
 
     def __hash__(self) -> int:
-        h = hash("union")
-        for constraint in self._constraints:
-            h ^= hash(constraint)
-
-        return h
+        return hash(("union", *self._constraints))
 
     def __str__(self) -> str:
-        constraints = []
-        for constraint in self._constraints:
-            constraints.append(str(constraint))
-
+        constraints = [str(constraint) for constraint in self._constraints]
         return " || ".join(constraints)

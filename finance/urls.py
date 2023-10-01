@@ -16,4 +16,5 @@ urlpatterns = [
     path('finance_xlrx/<int:id>', views.finance_xlrx, name='finance_xlrx'),
     path('deposit_list/', views.deposit_list, name='deposit_list'),
     path('del_deposit/<int:id>', views.del_deposit, name='del_deposit'),
+    path('finance_graphics/', views.finance_graphics, name='finance_graphics'),
 ]

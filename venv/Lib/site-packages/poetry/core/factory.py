@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Mapping
 from typing import Union
 from warnings import warn
 
@@ -18,6 +17,8 @@ from poetry.core.utils.helpers import readme_content_type
 
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from poetry.core.packages.dependency import Dependency
     from poetry.core.packages.dependency_group import DependencyGroup
     from poetry.core.packages.project_package import ProjectPackage
@@ -72,7 +73,7 @@ class Factory:
     def get_package(cls, name: str, version: str) -> ProjectPackage:
         from poetry.core.packages.project_package import ProjectPackage
 
-        return ProjectPackage(name, version, version)
+        return ProjectPackage(name, version)
 
     @classmethod
     def _add_package_group_dependencies(
@@ -151,9 +152,6 @@ class Factory:
                 package.readmes = (root / config["readme"],)
             else:
                 package.readmes = tuple(root / readme for readme in config["readme"])
-
-        if "platform" in config:
-            package.platform = config["platform"]
 
         if "dependencies" in config:
             cls._add_package_group_dependencies(
@@ -263,7 +261,7 @@ class Factory:
                     'the "allows-prereleases" property, which is deprecated. '
                     'Use "allow-prereleases" instead.'
                 )
-                warn(message, DeprecationWarning)
+                warn(message, DeprecationWarning, stacklevel=2)
                 logger.warning(message)
 
             allows_prereleases = constraint.get(
@@ -292,6 +290,7 @@ class Factory:
                 dependency = FileDependency(
                     name,
                     file_path,
+                    directory=constraint.get("subdirectory", None),
                     groups=groups,
                     base=root_dir,
                     extras=constraint.get("extras", []),
@@ -308,12 +307,16 @@ class Factory:
                     dependency = FileDependency(
                         name,
                         path,
+                        directory=constraint.get("subdirectory", None),
                         groups=groups,
                         optional=optional,
                         base=root_dir,
                         extras=constraint.get("extras", []),
                     )
                 else:
+                    subdirectory = constraint.get("subdirectory", None)
+                    if subdirectory:
+                        path = path / subdirectory
                     dependency = DirectoryDependency(
                         name,
                         path,
@@ -408,6 +411,22 @@ class Factory:
                             'the "allows-prereleases" property, which is deprecated. '
                             'Use "allow-prereleases" instead.'
                         )
+
+            if "extras" in config:
+                for extra_name, requirements in config["extras"].items():
+                    extra_name = canonicalize_name(extra_name)
+
+                    for req in requirements:
+                        req_name = canonicalize_name(req)
+                        for dependency in config.get("dependencies", {}):
+                            dep_name = canonicalize_name(dependency)
+                            if req_name == dep_name:
+                                break
+                        else:
+                            result["errors"].append(
+                                f'Cannot find dependency "{req}" for extra '
+                                f'"{extra_name}" in main dependencies.'
+                            )
 
             # Checking for scripts with extras
             if "scripts" in config:

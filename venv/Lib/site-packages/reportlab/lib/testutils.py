@@ -3,7 +3,7 @@
 import reportlab
 reportlab._rl_testing=True
 del reportlab
-__version__='3.3.0'
+__version__='4.0.1'
 __doc__="""Provides support for the test suite.
 
 The test suite as a whole, and individual tests, need to share
@@ -12,10 +12,17 @@ can always be imported, and so that individual tests need to import
 nothing more than "reportlab.whatever..."
 """
 
-import sys, os, fnmatch, re
+import sys, os, fnmatch, re, functools
 from configparser import ConfigParser
 import unittest
 from reportlab.lib.utils import isCompactDistro, __rl_loader__, rl_isdir, asUnicode
+
+def haveRenderPM():
+    from reportlab.graphics.renderPM import _getPMBackend, RenderPMError
+    try:
+        return _getPMBackend()
+    except RenderPMError:
+        return False
 
 # Helper functions.
 def isWritable(D):
@@ -364,3 +371,20 @@ def rlextraNeeded():
         return False
     except:
         return True
+
+def rlSkipIf(cond,reason,__module__=None):
+    def inner(func):
+        @functools.wraps(func)
+        def wrapper(*args,**kwds):
+            if cond and os.environ.get('RL_indicateSkips','0')=='1':
+                print(f'''
+skipping {func.__module__ or __module__}.{func.__name__} {reason}''')
+            return unittest.skipIf(cond,reason)(func)(*args,**kwds)
+        return wrapper
+    return inner
+
+def rlSkipUnless(cond,reason,__module__=None):
+    return rlSkipIf(not cond,reason,__module__=__module__)
+
+def rlSkip(reason,__module__=None):
+    return rlSkipIf(True,reason,__module__=__module__)

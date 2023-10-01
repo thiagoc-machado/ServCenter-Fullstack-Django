@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 # test_line_ending.py -- Tests for the line ending functions
-# encoding: utf-8
 # Copyright (C) 2018-2019 Boris Feld <boris.feld@comet.ml>
 #
 # Dulwich is dual-licensed under the Apache License, Version 2.0 and the GNU
@@ -22,19 +20,20 @@
 
 """Tests for the line ending conversion."""
 
-from dulwich.line_ending import (
-    normalize_blob,
+from dulwich.tests import TestCase
+
+from ..line_ending import (
     convert_crlf_to_lf,
     convert_lf_to_crlf,
     get_checkin_filter_autocrlf,
     get_checkout_filter_autocrlf,
+    normalize_blob,
 )
-from dulwich.objects import Blob
-from dulwich.tests import TestCase
+from ..objects import Blob
 
 
 class LineEndingConversion(TestCase):
-    """Test the line ending conversion functions in various cases"""
+    """Test the line ending conversion functions in various cases."""
 
     def test_convert_crlf_to_lf_no_op(self):
         self.assertEqual(convert_crlf_to_lf(b"foobar"), b"foobar")

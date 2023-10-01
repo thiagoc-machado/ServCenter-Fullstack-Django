@@ -21,10 +21,9 @@
 """Tests for dulwich.mailmap."""
 
 from io import BytesIO
-
 from unittest import TestCase
 
-from dulwich.mailmap import Mailmap, read_mailmap
+from ..mailmap import Mailmap, read_mailmap
 
 
 class ReadMailmapTests(TestCase):

@@ -1,11 +1,14 @@
 import sys
 from copy import deepcopy
 
-from typing import List, Callable, Iterator, Union, Optional, Generic, TypeVar, Any, TYPE_CHECKING
+from typing import List, Callable, Iterator, Union, Optional, Generic, TypeVar, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .lexer import TerminalDef, Token
-    import rich
+    try:
+        import rich
+    except ImportError:
+        pass
     if sys.version_info >= (3, 8):
         from typing import Literal
     else:
@@ -44,7 +47,12 @@ class Tree(Generic[_Leaf_T]):
         data: The name of the rule or alias
         children: List of matched sub-rules and terminals
         meta: Line & Column numbers (if ``propagate_positions`` is enabled).
-            meta attributes: line, column, start_pos, end_line, end_column, end_pos
+            meta attributes: (line, column, end_line, end_column, start_pos, end_pos,
+                              container_line, container_column, container_end_line, container_end_column)
+            container_* attributes consider all symbols, including those that have been inlined in the tree.
+            For example, in the rule 'a: _A B _C', the regular attributes will mark the start and end of B,
+            but the container_* attributes will also include _A and _C in the range. However, rules that
+            contain 'a' will consider it in full, including _A and _C for all attributes.
     """
 
     data: str
@@ -68,17 +76,16 @@ class Tree(Generic[_Leaf_T]):
         return self.data
 
     def _pretty(self, level, indent_str):
+        yield f'{indent_str*level}{self._pretty_label()}'
         if len(self.children) == 1 and not isinstance(self.children[0], Tree):
-            return [indent_str*level, self._pretty_label(), '\t', '%s' % (self.children[0],), '\n']
-
-        l = [indent_str*level, self._pretty_label(), '\n']
-        for n in self.children:
-            if isinstance(n, Tree):
-                l += n._pretty(level+1, indent_str)
-            else:
-                l += [indent_str*(level+1), '%s' % (n,), '\n']
-
-        return l
+            yield f'\t{self.children[0]}\n'
+        else:
+            yield '\n'
+            for n in self.children:
+                if isinstance(n, Tree):
+                    yield from n._pretty(level+1, indent_str)
+                else:
+                    yield f'{indent_str*(level+1)}{n}\n'
 
     def pretty(self, indent_str: str='  ') -> str:
         """Returns an indented string representation of the tree.
@@ -87,7 +94,7 @@ class Tree(Generic[_Leaf_T]):
         """
         return ''.join(self._pretty(0, indent_str))
 
-    def __rich__(self, parent:'rich.tree.Tree'=None) -> 'rich.tree.Tree':
+    def __rich__(self, parent:Optional['rich.tree.Tree']=None) -> 'rich.tree.Tree':
         """Returns a tree widget for the 'rich' library.
 
         Example:
@@ -149,13 +156,15 @@ class Tree(Generic[_Leaf_T]):
         Iterates over all the subtrees, return nodes in order like pretty() does.
         """
         stack = [self]
+        stack_append = stack.append
+        stack_pop = stack.pop
         while stack:
-            node = stack.pop()
+            node = stack_pop()
             if not isinstance(node, Tree):
                 continue
             yield node
             for child in reversed(node.children):
-                stack.append(child)
+                stack_append(child)
 
     def find_pred(self, pred: 'Callable[[Tree[_Leaf_T]], bool]') -> 'Iterator[Tree[_Leaf_T]]':
         """Returns all nodes of the tree that evaluate pred(node) as true."""

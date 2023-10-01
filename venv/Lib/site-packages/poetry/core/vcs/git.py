@@ -14,8 +14,8 @@ PROTOCOL = r"\w+"
 USER = r"[a-zA-Z0-9_.-]+"
 RESOURCE = r"[a-zA-Z0-9_.-]+"
 PORT = r"\d+"
-PATH = r"[\w~.\-/\\\$]+"
-NAME = r"[\w~.\-]+"
+PATH = r"[%\w~.\-/\\\$]+"
+NAME = r"[%\w~.\-]+"
 REV = r"[^@#]+?"
 SUBDIR = r"[\w\-/\\]+"
 
@@ -29,11 +29,11 @@ PATTERNS = [
         rf"(?P<pathname>[:/\\]({PATH}[/\\])?"
         rf"((?P<name>{NAME}?)(\.git|[/\\])?)?)"
         r"(?:"
-        r"#egg=?.+"
-        r"|"
         rf"#(?:egg=.+?&subdirectory=|subdirectory=)(?P<subdirectory>{SUBDIR})"
         r"|"
-        rf"[@#](?P<rev>{REV})(?:[&#](?:egg=.+?|(?:egg=.+?&subdirectory=|subdirectory=)(?P<rev_subdirectory>{SUBDIR})))?"
+        r"#egg=?.+"
+        r"|"
+        rf"[@#](?P<rev>{REV})(?:[&#](?:(?:egg=.+?&subdirectory=|subdirectory=)(?P<rev_subdirectory>{SUBDIR})|egg=.+?))?"
         r")?"
         r"$"
     ),
@@ -46,11 +46,11 @@ PATTERNS = [
         rf"(?P<pathname>({PATH})"
         rf"(?P<name>{NAME})(\.git|/)?)"
         r"(?:"
-        r"#egg=?.+"
-        r"|"
         rf"#(?:egg=.+?&subdirectory=|subdirectory=)(?P<subdirectory>{SUBDIR})"
         r"|"
-        rf"[@#](?P<rev>{REV})(?:[&#](?:egg=.+?|(?:egg=.+?&subdirectory=|subdirectory=)(?P<rev_subdirectory>{SUBDIR})))?"
+        r"#egg=?.+"
+        r"|"
+        rf"[@#](?P<rev>{REV})(?:[&#](?:(?:egg=.+?&subdirectory=|subdirectory=)(?P<rev_subdirectory>{SUBDIR})|egg=.+?))?"
         r")?"
         r"$"
     ),
@@ -61,11 +61,11 @@ PATTERNS = [
         rf"(?P<pathname>([:/]{PATH}/)"
         rf"(?P<name>{NAME})(\.git|/)?)"
         r"(?:"
-        r"#egg=.+?"
-        r"|"
         rf"#(?:egg=.+?&subdirectory=|subdirectory=)(?P<subdirectory>{SUBDIR})"
         r"|"
-        rf"[@#](?P<rev>{REV})(?:[&#](?:egg=.+?&subdirectory=|subdirectory=)(?P<rev_subdirectory>{SUBDIR}))?"
+        r"#egg=?.+"
+        r"|"
+        rf"[@#](?P<rev>{REV})(?:[&#](?:(?:egg=.+?&subdirectory=|subdirectory=)(?P<rev_subdirectory>{SUBDIR})|egg=.+?))?"
         r")?"
         r"$"
     ),
@@ -76,11 +76,11 @@ PATTERNS = [
         rf"(?P<pathname>({PATH})"
         rf"(?P<name>{NAME})(\.git|/)?)"
         r"(?:"
-        r"#egg=?.+"
-        r"|"
         rf"#(?:egg=.+?&subdirectory=|subdirectory=)(?P<subdirectory>{SUBDIR})"
         r"|"
-        rf"[@#](?P<rev>{REV})(?:[&#](?:egg=.+?|(?:egg=.+?&subdirectory=|subdirectory=)(?P<rev_subdirectory>{SUBDIR})))?"
+        r"#egg=?.+"
+        r"|"
+        rf"[@#](?P<rev>{REV})(?:[&#](?:(?:egg=.+?&subdirectory=|subdirectory=)(?P<rev_subdirectory>{SUBDIR})|egg=.+?))?"
         r")?"
         r"$"
     ),
@@ -356,7 +356,7 @@ class Git:
     def remote_url(self, folder: Path | None = None) -> str:
         urls = self.remote_urls(folder=folder)
 
-        return urls.get("remote.origin.url", urls[list(urls.keys())[0]])
+        return urls.get("remote.origin.url", urls[next(iter(urls.keys()))])
 
     def run(self, *args: Any, **kwargs: Any) -> str:
         folder = kwargs.pop("folder", None)
@@ -366,11 +366,12 @@ class Git:
                 (folder / ".git").as_posix(),
                 "--work-tree",
                 folder.as_posix(),
-            ) + args
+                *args,
+            )
 
         return (
             subprocess.check_output(
-                [executable()] + list(args), stderr=subprocess.STDOUT
+                [executable(), *list(args)], stderr=subprocess.STDOUT
             )
             .decode()
             .strip()

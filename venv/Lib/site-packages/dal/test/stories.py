@@ -147,7 +147,7 @@ class BaseStory(object):
         el = self.case.browser.find_by_css(sel).first
         el.click()
 
-        # Wait until the form was actually submited
+        # Wait until the form was actually submitted
         tries = 100
         while tries:
             # Popup is gone
@@ -247,7 +247,7 @@ class InlineSelectOption(SelectOption):
         )
 
         # Ensure the inline is displayed else click to add it
-        add = self.case.browser.find_link_by_partial_text('Add another').first
+        add = self.case.browser.links.find_by_partial_text('Add another').first
 
         num = len(
             self.case.browser.find_by_css(
@@ -280,7 +280,7 @@ class RenameOption(SelectOption):
 
         self.switch_to_popup()
         name_input = self.case.browser.find_by_id('id_name')
-        self.case.assertEquals(
+        self.case.assertEqual(
             name_input['value'],
             current_name
         )
@@ -371,7 +371,7 @@ class MultipleMixin(object):
         for text in texts:
             self.case.assertIn(text, labels)
 
-        self.case.assertEquals(len(texts), len(labels))
+        self.case.assertEqual(len(texts), len(labels))
 
     def assert_values(self, values):
         """Assart that the actual field values matches values."""
@@ -384,7 +384,7 @@ class MultipleMixin(object):
                 text_values
             )
 
-        self.case.assertEquals(len(values), len(actual_values))
+        self.case.assertEqual(len(values), len(actual_values))
 
     def assert_selection(self, values, labels):
         """Assert selections have values and labels."""

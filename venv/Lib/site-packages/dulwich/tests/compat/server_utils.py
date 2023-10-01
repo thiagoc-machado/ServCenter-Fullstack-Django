@@ -26,27 +26,18 @@ import shutil
 import socket
 import tempfile
 
-from dulwich.repo import Repo
-from dulwich.objects import hex_to_sha
-from dulwich.protocol import (
-    CAPABILITY_SIDE_BAND_64K,
-)
-from dulwich.server import (
-    ReceivePackHandler,
-)
-from dulwich.tests.utils import (
-    tear_down_repo,
-)
-from dulwich.tests.compat.utils import (
-    run_git_or_fail,
-)
-from dulwich.tests.compat.utils import require_git_version
+from ...objects import hex_to_sha
+from ...protocol import CAPABILITY_SIDE_BAND_64K
+from ...repo import Repo
+from ...server import ReceivePackHandler
+from ..utils import tear_down_repo
+from .utils import require_git_version, run_git_or_fail
 
 
-class _StubRepo(object):
+class _StubRepo:
     """A stub repo that just contains a path to tear down."""
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         temp_dir = tempfile.mkdtemp()
         self.path = os.path.join(temp_dir, name)
         os.mkdir(self.path)
@@ -70,7 +61,7 @@ def _get_shallow(repo):
     return shallows
 
 
-class ServerTests(object):
+class ServerTests:
     """Base tests for testing servers.
 
     Does not inherit from TestCase so tests are not automatically run.
@@ -87,12 +78,12 @@ class ServerTests(object):
         self._new_repo = self.import_repo("server_new.export")
 
     def url(self, port):
-        return "%s://localhost:%s/" % (self.protocol, port)
+        return f"{self.protocol}://localhost:{port}/"
 
     def branch_args(self, branches=None):
         if branches is None:
             branches = ["master", "branch"]
-        return ["%s:%s" % (b, b) for b in branches]
+        return [f"{b}:{b}" for b in branches]
 
     def test_push_to_dulwich(self):
         self.import_repos()

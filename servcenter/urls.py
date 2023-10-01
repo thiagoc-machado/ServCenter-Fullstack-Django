@@ -16,7 +16,7 @@ urlpatterns = [
     path('services/', include("services.urls")),
     path('work_order/', include("work_order.urls")),
     path('finance/', include("finance.urls")),
-    path('finance_dia/', include("finance.urls")),
+    # path('finance_dia/', include("finance.urls")),
     path('backup/', include("backup.urls")),
     path('config/', include("config.urls")),
     path('documents/', include("documents.urls")),

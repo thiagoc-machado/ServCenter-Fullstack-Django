@@ -8,7 +8,7 @@ from .visitors import _vargs_meta, _vargs_meta_inline
 
 ###{standalone
 from functools import partial, wraps
-from itertools import repeat, product
+from itertools import product
 
 
 class ExpandSingleChild:
@@ -50,6 +50,7 @@ class PropagatePositions:
 
                 res_meta.container_line = getattr(first_meta, 'container_line', first_meta.line)
                 res_meta.container_column = getattr(first_meta, 'container_column', first_meta.column)
+                res_meta.container_start_pos = getattr(first_meta, 'container_start_pos', first_meta.start_pos)
 
             last_meta = self._pp_get_meta(reversed(children))
             if last_meta is not None:
@@ -61,6 +62,7 @@ class PropagatePositions:
 
                 res_meta.container_end_line = getattr(last_meta, 'container_end_line', last_meta.end_line)
                 res_meta.container_end_column = getattr(last_meta, 'container_end_column', last_meta.end_column)
+                res_meta.container_end_pos = getattr(last_meta, 'container_end_pos', last_meta.end_pos)
 
         return res
 
@@ -186,7 +188,7 @@ def maybe_create_child_filter(expansion, keep_all_tokens, ambiguous, _empty_indi
 class AmbiguousExpander:
     """Deal with the case where we're expanding children ('_rule') into a parent but the children
        are ambiguous. i.e. (parent->_ambig->_expand_this_rule). In this case, make the parent itself
-       ambiguous with as many copies as their are ambiguous children, and then copy the ambiguous children
+       ambiguous with as many copies as there are ambiguous children, and then copy the ambiguous children
        into the right parents in the right places, essentially shifting the ambiguity up the tree."""
     def __init__(self, to_expand, tree_class, node_builder):
         self.node_builder = node_builder
@@ -212,8 +214,8 @@ class AmbiguousExpander:
         if not ambiguous:
             return self.node_builder(children)
 
-        expand = [iter(child.children) if i in ambiguous else repeat(child) for i, child in enumerate(children)]
-        return self.tree_class('_ambig', [self.node_builder(list(f[0])) for f in product(zip(*expand))])
+        expand = [child.children if i in ambiguous else (child,) for i, child in enumerate(children)]
+        return self.tree_class('_ambig', [self.node_builder(list(f)) for f in product(*expand)])
 
 
 def maybe_create_ambiguous_expander(tree_class, expansion, keep_all_tokens):

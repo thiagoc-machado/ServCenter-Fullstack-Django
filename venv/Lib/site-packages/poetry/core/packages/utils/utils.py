@@ -5,6 +5,7 @@ import posixpath
 import re
 import sys
 
+from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Dict
@@ -16,8 +17,10 @@ from urllib.request import url2pathname
 
 from poetry.core.constraints.version import Version
 from poetry.core.constraints.version import VersionRange
-from poetry.core.constraints.version import parse_constraint
+from poetry.core.constraints.version import parse_marker_version_constraint
 from poetry.core.pyproject.toml import PyProjectTOML
+from poetry.core.version.markers import SingleMarker
+from poetry.core.version.markers import SingleMarkerLike
 from poetry.core.version.markers import dnf
 
 
@@ -38,20 +41,16 @@ TAR_EXTENSIONS = (".tar.gz", ".tgz", ".tar")
 ARCHIVE_EXTENSIONS = ZIP_EXTENSIONS + BZ2_EXTENSIONS + TAR_EXTENSIONS + XZ_EXTENSIONS
 SUPPORTED_EXTENSIONS: tuple[str, ...] = ZIP_EXTENSIONS + TAR_EXTENSIONS
 
-try:
+with suppress(ImportError):
     import bz2  # noqa: F401
 
     SUPPORTED_EXTENSIONS += BZ2_EXTENSIONS
-except ImportError:
-    pass
 
-try:
+with suppress(ImportError):
     # Only for Python 3.3+
     import lzma  # noqa: F401
 
     SUPPORTED_EXTENSIONS += XZ_EXTENSIONS
-except ImportError:
-    pass
 
 
 def path_to_url(path: str | Path) -> str:
@@ -179,10 +178,18 @@ def convert_markers(marker: BaseMarker) -> ConvertedMarkers:
     for i, sub_marker in enumerate(conjunctions):
         if isinstance(sub_marker, MultiMarker):
             for m in sub_marker.markers:
+                assert isinstance(m, SingleMarkerLike)
                 if isinstance(m, SingleMarker):
                     add_constraint(m.name, (m.operator, m.value), i)
-        elif isinstance(sub_marker, SingleMarker):
-            add_constraint(sub_marker.name, (sub_marker.operator, sub_marker.value), i)
+                else:
+                    add_constraint(m.name, ("", str(m.constraint)), i)
+        elif isinstance(sub_marker, SingleMarkerLike):
+            if isinstance(sub_marker, SingleMarker):
+                add_constraint(
+                    sub_marker.name, (sub_marker.operator, sub_marker.value), i
+                )
+            else:
+                add_constraint(sub_marker.name, ("", str(sub_marker.constraint)), i)
 
     for group_name in requirements:
         # remove duplicates
@@ -226,7 +233,7 @@ def create_nested_marker(
 
         marker = glue.join(parts)
     elif isinstance(constraint, Constraint):
-        marker = f'{name} {constraint.operator} "{constraint.version}"'
+        marker = f'{name} {constraint.operator} "{constraint.value}"'
     elif isinstance(constraint, VersionUnion):
         parts = [create_nested_marker(name, c) for c in constraint.ranges]
         glue = " or "
@@ -316,7 +323,7 @@ def get_python_constraint_from_marker(
 
     python_version_markers = markers["python_version"]
     normalized = normalize_python_version_markers(python_version_markers)
-    constraint = parse_constraint(normalized)
+    constraint = parse_marker_version_constraint(normalized)
     return constraint
 
 
@@ -368,9 +375,9 @@ def normalize_python_version_markers(  # NOSONAR
 
             elif op in ("in", "not in"):
                 versions = []
-                for v in re.split("[ ,]+", version):
+                for v in SingleMarker.VALUE_SEPARATOR_RE.split(version):
                     split = v.split(".")
-                    if len(split) in [1, 2]:
+                    if len(split) in (1, 2):
                         split.append("*")
                         op_ = "" if op == "in" else "!="
                     else:
