@@ -97,55 +97,56 @@
       </div>
     </a>
   </div>
-  
   <div class="actions_bar row">
-    <div class="col-md-4 px-3">
-        <div class="row">
-            <div class="col-md-12 p-1">
-                <a href="{% url 'new_finance' %}" class="btn btn-success btn-block">Entrada avulsa no caixa</a>
-            </div>
-            <div class="col-md-12 p-1">
-                <a href="{% url 'new_finance_out' %}" class="btn btn-danger btn-block">Saída avulsa no caixa</a>
-            </div>
-            <div class="col-md-12 p-1">
-                <a href="{% url 'finance_xlrx' id=1 %}" class="btn btn-primary btn-block">Exportar movimentação</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 px-3">
-        <div class="row">
-            <div class="col-md-12 p-1">
-                <p class="">Selecione a data</p>
-            </div>
-            <div class="col-md-12 p-1">
-                <form method="post" action="{% url 'finance_graphics' %}">
-                    {% csrf_token %}
-                    <input type="date" name="date_mov" class="input form-control">
-                    <button type="submit" name="filter_by_date" class="btn btn-primary btn-block">Filtrar pela data</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 px-3">
+    <div class="col-md-6 px-3">
       <div class="row">
-              <div class="card border-primary p-1 ">
-                <h5 class="fin-card-header text-center">
-                  <i class="cards_fin">Lançar depósito</i>
-                  <form class="row g-6" action="{% url 'finance' %}" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="items mb-3 w-100">
-                      <input type="number" name="deposits" min="1" class="cards_fin p-0 form-control">
-                    </div>
-                    <div class="items mt-3 w-100">
-                      <button type="submit" name="submit_deposit" class="btn btn-primary btn-block">lançar deposito</button>
-                    </div>
-                  </form>
-                </h5>
-              </div>
+        <div class="col-md-12 p-1">
+          <a href="{% url 'new_finance' %}" class="btn btn-success btn-block">Entrada avulsa no caixa</a>
+        </div>
+        <div class="col-md-12 p-1">
+          <a href="{% url 'new_finance_out' %}" class="btn btn-danger btn-block">Saída avulsa no caixa</a>
+        </div>
+        <div class="col-md-12 p-1">
+          <a href="{% url 'finance_xlrx' id=1 %}" class="btn btn-primary btn-block">Exportar movimentação</a>
+        </div>
       </div>
-  </div>
-</div>
-
+    </div>
+    <div class="col-md-3 px-3 lanc">
+        <div class="card border-primary p-1 ">
+          <h5 class="fin-card-header text-center">
+            <i class="cards_fin">Lançar depósito</i>
+            <form class="row g-6" action="{% url 'finance' %}" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="items mb-3 w-100">
+                <input type="number" name="deposits" min="1" class="cards_fin p-0 form-control">
+              </div>
+              <div class="items mt-3 w-100">
+                <button type="submit" class="btn btn-primary btn-block">lançar deposito</button>
+              </div>
+            </form>
+          </h5>
+        </div>
+    </div>
+    
+    <div class="col-md-3 px-3 caixa">
+      <a href="{% url 'deposit_list' %}">
+        <div class="card border-primary p-1">
+          <h4 class="fin-card-header p-2">
+            <i class="cards_fin">Caixa</i>
+            <div class="items p-1">
+              <i class="cards_fin">Gaveta</i>
+              <h5 class="fin-subt2">R$ {{gaveta}}</h5>
+            </div>
+            <div class="items p-1">
+              <i class="cards_fin">Depositos hj</i>
+              <h5 class="fin-subt2" nema="total_deposits" value="{{total_deposits}}"> {{caixas_do_dia}}</h5>
+            </div>
+            <div class="items">
+            </div>
+          </h5>
+        </div>
+      </a>
+      </div>
 
 
   </div>
