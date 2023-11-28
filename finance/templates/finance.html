@@ -252,16 +252,105 @@
           <div class="row">
             <div class="col-md-6 gfc">
               <canvas id="myChart"></canvas>
+              <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="chartValuesTable">
+                            <thead>
+                                <tr>
+                                    <th>Dia</th>
+                                    <th>Entrada</th>
+                                    <th>Saída</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                </div>
+            </div>
+            
             </div>
             <div class="col-md-6 gfc">
               <canvas id="yearChart"></canvas>
+              <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                      <table class="table table-bordered" id="yearChartValuesTable">
+                            <thead>
+                                <tr>
+                                    <th>Mes</th>
+                                    <th>Entrada</th>
+                                    <th>Saída</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
           </div>
+          {% comment %} GRAFICOS PIZZA {% endcomment %}
+          <div class="container">
+            <div class="row">
+              <div class="col-md-6 gfc">
+                <canvas id="pieChartMesIn"></canvas>
+                <div class="row">
+                  <div class="col-md-12">
+                      <div class="table-responsive">
+                        <div id="tableContainerMesIn"></div>
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                  </div>
+              </div>
+              
+              </div>
+              <div class="col-md-6 gfc">
+                <canvas id="pieChartMesOut"></canvas>  
+                <div class="row">
+                  <div class="col-md-12">
+                      <div class="table-responsive">
+                        <div id="tableContainerMesOut"></div>
+                      </div>
+                  </div>
+              </div>
+            </div>
         </div>
+
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6 gfc">
+              <canvas id="pieChartAnoIn"></canvas>
+              <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                      <div id="tableContainerAnoIn"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                </div>
+            </div>
+            
+            </div>
+            <div class="col-md-6 gfc">
+              <canvas id="pieChartAnoOut"></canvas>
+              <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                      <div id="tableContainerAnoOut"></div>
+                    </div>
+                </div>
+            </div>
+          </div>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
       </div>
 
-      {% block content3 %}
+      {% comment %} {% block content3 %}
       <div class="row graph_pie_block">
         <div class="col-md-6">
           <img
@@ -292,8 +381,8 @@
           />
         </div>
       </div>
-      {% endblock %}
-
+      {% endblock %} {% endcomment %}
+      {% comment %} GRAFICO BARRAS DIARIO MYCHART {% endcomment %}
       <script>
         var ctx = document.getElementById('myChart').getContext('2d');
         var dates = JSON.parse('{{ dates_json|safe }}');
@@ -341,8 +430,39 @@
             },
           },
         });
+        var chartValuesTableBody = document.querySelector('#chartValuesTable tbody');
+        var chartValuesTableBody = document.querySelector('#chartValuesTable tbody');
+
+          function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+          }
+      
+
+        dates.forEach((date, index) => {
+            var tableRow = chartValuesTableBody.insertRow();
+            
+            // Coluna de Data
+            var dateCell = tableRow.insertCell(0);
+            dateCell.textContent = date.day;
+
+            // Coluna de Entrada
+            var entradaCell = tableRow.insertCell(1);
+            entradaCell.textContent = formatCurrency(entradas[index].value);
+
+            // Coluna de Saída
+            var saidaCell = tableRow.insertCell(2);
+            saidaCell.textContent = formatCurrency(saidas[index].value);
+
+            // Coluna de Total
+            var totalCell = tableRow.insertCell(3);
+            var totalValue = entradas[index].value - saidas[index].value;
+            totalCell.textContent = formatCurrency(totalValue);
+        });
       </script>
+
       {% endblock %} {% block content2 %} {% endblock %} {% block scripts2 %}
+
+      {% comment %} GRAFICO BARRAS MENSAL YEARCHART {% endcomment %}
       <script>
         var ctx = document.getElementById('yearChart').getContext('2d');
 
@@ -381,11 +501,160 @@
                 }
             }
         });
+
+        var yearChartValuesTableBody = document.querySelector('#yearChartValuesTable tbody');
+
+      months.forEach((month, index) => {
+          var tableRow = yearChartValuesTableBody.insertRow();
+
+          // Coluna de Mês
+          var monthCell = tableRow.insertCell(0);
+          monthCell.textContent = month;
+
+          // Coluna de Entrada
+          var entradaCell = tableRow.insertCell(1);
+          entradaCell.textContent = formatCurrency(in_mes[index]);
+
+          // Coluna de Saída
+          var saidaCell = tableRow.insertCell(2);
+          saidaCell.textContent = formatCurrency(out_mes[index]);
+
+          // Coluna de Total (entrada - saída)
+          var totalCell = tableRow.insertCell(3);
+          var totalValue = in_mes[index] - out_mes[index];
+          totalCell.textContent = formatCurrency(totalValue);
+      });
+            
       </script>
 
-      {% endblock %}
-    </div>
-  </div>
-  <script src="{% static 'clients/js/script.js'%}"></script>
+      
+      {% comment %} GRAFICO DE PIZZA 1 PIECHART {% endcomment %}
+      <script>
+        var ctx = document.getElementById('pieChart').getContext('2d');
+        
+        var pieChartData = {{ pie_chart_mes_in|safe }};
+        
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: pieChartData.categories,
+                datasets: [{
+                    data: pieChartData.values,
+                    backgroundColor: ['red', 'green', 'blue', 'yellow'],
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Entradas por categoria - Mês {{ today.month }}',
+                }
+            }
+        });
+    
+        // Criação da tabela dinâmica
+        var tableContainer = document.getElementById('tableContainer');
+        var tableHTML = '<table class="table"><thead><tr><th>Categoria</th><th>Valor</th><th>Porcentagem</th></tr></thead><tbody>';
+    
+        for (var i = 0; i < pieChartData.categories.length; i++) {
+            tableHTML += '<tr>';
+            tableHTML += '<td>' + pieChartData.categories[i] + '</td>';
+            tableHTML += '<td>' + pieChartData.values[i].toFixed(2) + '</td>';  // Ajuste conforme necessário
+            tableHTML += '<td>' + ((pieChartData.values[i] / pieChartData.values.reduce((a, b) => a + b, 0)) * 100).toFixed(2) + '%</td>';
+            tableHTML += '</tr>';
+        }
+    
+        tableHTML += '</tbody></table>';
+    
+        // Adiciona a tabela ao container
+        tableContainer.innerHTML = tableHTML;
+    </script>
+
+    <script>
+      function createPieChartAndTable(chartId, tableContainerId, chartData, maxCategoriesToShow, chartTitle) {
+          var ctx = document.getElementById(chartId).getContext('2d');
+  
+          // Função para gerar uma paleta de cores com base em uma cor inicial
+          function generateColors(baseColor, count) {
+              var colors = [];
+              for (var i = 0; i < count; i++) {
+                  var newColor = Chart.helpers.color(baseColor).lighten(i / count).rgbString();
+                  colors.push(newColor);
+              }
+              return colors;
+          }
+  
+          // Limita o número de categorias exibidas diretamente
+          var displayedCategories = chartData.categories.slice(0, maxCategoriesToShow);
+          var remainingCategories = chartData.categories.slice(maxCategoriesToShow);
+  
+          // Agrupa categorias restantes em "Outros"
+          var sumOfRemainingValues = chartData.values.slice(maxCategoriesToShow).reduce((a, b) => a + b, 0);
+          displayedCategories.push('Outros');
+          var displayedValues = chartData.values.slice(0, maxCategoriesToShow);
+          displayedValues.push(sumOfRemainingValues);
+  
+          // Gera automaticamente cores de fundo
+          var backgroundColors = generateColors('rgba(75, 192, 192, 0.7)', displayedCategories.length);
+  
+          var myPieChart = new Chart(ctx, {
+              type: 'pie',
+              data: {
+                  labels: displayedCategories,
+                  datasets: [{
+                      data: displayedValues,
+                      backgroundColor: backgroundColors,
+                  }]
+              },
+              options: {
+                  title: {
+                      display: true,
+                      text: chartTitle,  // Adiciona o título do gráfico
+                  },
+                  legend: {
+                      display: false,  // Remover as etiquetas
+                  }
+              }
+          });
+  
+          // Criação da tabela dinâmica
+          var tableContainer = document.getElementById(tableContainerId);
+          var tableHTML = '<table class="table"><thead><tr><th>Categoria</th><th>Valor</th><th>Porcentagem</th></tr></thead><tbody>';
+  
+          for (var i = 0; i < displayedCategories.length; i++) {
+              tableHTML += '<tr>';
+              tableHTML += '<td>' + displayedCategories[i] + '</td>';
+              tableHTML += '<td>' + formatCurrency(displayedValues[i]) + '</td>';
+              tableHTML += '<td>' + ((displayedValues[i] / displayedValues.reduce((a, b) => a + b, 0)) * 100).toFixed(2) + '%</td>';
+              tableHTML += '</tr>';
+          }
+  
+          tableHTML += '</tbody></table>';
+  
+          // Adiciona a tabela ao container
+          tableContainer.innerHTML = tableHTML;
+      }
+  
+      // Função para formatar valores como moeda brasileira
+      function formatCurrency(value) {
+          return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+      }
+  
+      // Defina o número máximo de categorias a serem exibidas diretamente
+      var maxCategoriesToShow = 5;
+  
+      // Chamadas para criar os gráficos e tabelas
+      createPieChartAndTable('pieChartMesIn', 'tableContainerMesIn', {{ pie_chart_mes_in|safe }}, maxCategoriesToShow, 'Entradas do Mês');
+      createPieChartAndTable('pieChartMesOut', 'tableContainerMesOut', {{ pie_chart_mes_out|safe }}, maxCategoriesToShow, 'Saídas do Mês');
+      createPieChartAndTable('pieChartAnoIn', 'tableContainerAnoIn', {{ pie_chart_data_ano|safe }}, maxCategoriesToShow, 'Entradas do Ano');
+      createPieChartAndTable('pieChartAnoOut', 'tableContainerAnoOut', {{ pie_chart_data_ano_out|safe }}, maxCategoriesToShow, 'Saídas do Ano');
+  </script>
+  
+  
+    
+
+          {% endblock %}
+        </div>
+      </div>
+    <script src="{% static 'clients/js/script.js'%}"></script>
   {% endblock%}
 </div>

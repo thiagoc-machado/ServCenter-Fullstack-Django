@@ -17,27 +17,27 @@ from django.db.models import Sum
 @user_passes_test(lambda u: u.is_superuser)
 def finance(request):
     if request.method == 'POST':
-
         deposits = request.POST.get('deposits')
         if deposits != '':
+            total_deposit = 0
             if Caixa.objects.aggregate(total=Sum('deposits'))['total'] != None:
-                total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] + float(deposits) or 0
+                total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))[
+                    'total'] + float(deposits) or 0
                 total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
             else:
                 total_deposits = 0
             caixa = Caixa.objects.all()
-            
 
             tot = tot_in()
             saldo = tot - total_deposit
-            caixa = Caixa(deposits=deposits, date=date.today(), obs='Depósito', saldo='R$ {:.2f}'.format(float(saldo)))
+            caixa = Caixa(deposits=deposits, date=date.today(),
+                          obs='Depósito', saldo='R$ {:.2f}'.format(float(saldo)))
             caixa.save()
             messages.add_message(request, constants.SUCCESS,
-                                'Depósito lançado com sucesso!')
+                                 'Depósito lançado com sucesso!')
         else:
             messages.add_message(request, constants.ERROR,
                                  'Nenhum valor foi inserido!')
-
 
         return redirect('/finance')
     else:
@@ -63,28 +63,76 @@ def finance(request):
 
         chart = finance_chart()
         chart_ano = finance_year_chart()
-        pie_mes_in = pie_chart_mes_in()
-        pie_ano_in = pie_chart_ano_in()
-        pie_mes_out = pie_chart_mes_out()
-        pie_ano_out = pie_chart_ano_out()  
+        # pie_mes_in = pie_chart_mes_in()
+        # pie_ano_in = pie_chart_ano_in()
+        # pie_mes_out = pie_chart_mes_out()
+        # pie_ano_out = pie_chart_ano_out()
         dates, entradas, saidas = finance_chart()
 
-        caixas_do_dia = Caixa.objects.filter(date=today).aggregate(total=Sum('deposits'))['total'] or 0
+        caixas_do_dia = Caixa.objects.filter(date=today).aggregate(
+            total=Sum('deposits'))['total'] or 0
 
-        total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] or 0
+        total_deposit = Caixa.objects.aggregate(
+            total=Sum('deposits'))['total'] or 0
         total_dep = Caixa.objects.aggregate(total=Sum('deposits'))['total']
         total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
-
 
         tot = tot_in()
         if total_dep == None:
             total_dep = 0
-        gaveta = tot - total_dep 
+        gaveta = tot - total_dep
+
+        pizza_chart_mes_in = pie_chart_mes_in()
+        pizza_chart_ano_in = pie_chart_ano_in()
+        pizza_chart_mes_out = pie_chart_mes_out()
+        pizza_chart_ano_out = pie_chart_ano_out()
+
+        return render(request, 'finance.html',
+                      {
+                          'finance': finance,
+                          'gaveta': '{:.2f}'.format(gaveta),
+                          'caixas_do_dia': '{:.2f}'.format(caixas_do_dia),
+                          'saidas_json': json.dumps(saidas),
+                          'entradas_json': json.dumps(entradas),
+                          'dates_json': json.dumps(dates),
+                          'finance': finance,
+                          'total_dia': total_dia,
+                          'total_sem': total_sem,
+                          'total_mes': total_mes,
+                          'total_ano': total_ano,
+                          'saida_ano': saida_ano,
+                          'entrada_ano': entrada_ano,
+                          'entrada_dia': entrada_dia,
+                          'saida_dia': saida_dia,
+                          'entrada_sem': entrada_sem,
+                          'saida_sem': saida_sem,
+                          'entrada_mes': entrada_mes,
+                          'saida_mes': saida_mes,
+                          'dates': chart[0],
+                          'entradas': chart[1],
+                          'saidas': chart[2],
+                          'months': chart_ano[0],
+                          'in_mes': chart_ano[1],
+                          'out_mes': chart_ano[2],
+                          'pie_chart_mes_in': pizza_chart_mes_in,
+                          'pie_chart_mes_out': pizza_chart_mes_out,
+                          'pie_chart_data_ano': pizza_chart_ano_in,
+                          'pie_chart_data_ano_out': pizza_chart_ano_out,
+                          # 'pie_mes_in': pie_mes_in[0],
+                          # 'data_mes_in': pie_mes_in[1],
+                          # 'value_mes_in': pie_mes_in[2],
+                          # 'pie_mes_out': pie_mes_out[0],
+                          # 'data_mes_out': pie_mes_out[1],
+                          # 'value_mes_out': pie_mes_out[2],
+                          # 'pie_ano_in': pie_ano_in[0],
+                          # 'data_ano_in': pie_ano_in[1],
+                          # 'value_ano_in': pie_ano_in[2],
+                          # 'pie_ano_out': pie_ano_out[0],
+                          # 'data_ano_out':pie_ano_out[1],
+                          # 'value_ano_out': pie_ano_out[2],
+                      })
 
 
-        return render(request, 'finance.html', {'finance': finance, 'gaveta' : '{:.2f}'.format(gaveta), 'caixas_do_dia' : '{:.2f}'.format(caixas_do_dia) , 'saidas_json': json.dumps(saidas), 'entradas_json': json.dumps(entradas), 'dates_json': json.dumps(dates), 'finance': finance, 'total_dia': total_dia, 'total_sem': total_sem, 'total_mes': total_mes, 'total_ano': total_ano, 'saida_ano': saida_ano, 'entrada_ano': entrada_ano, 'entrada_dia': entrada_dia, 'saida_dia': saida_dia, 'entrada_sem': entrada_sem, 'saida_sem': saida_sem, 'entrada_mes': entrada_mes, 'saida_mes': saida_mes, 'dates': chart[0], 'entradas': chart[1], 'saidas': chart[2], 'months': chart_ano[0], 'in_mes': chart_ano[1], 'out_mes': chart_ano[2], 'pie_mes_in': pie_mes_in, 'pie_ano_in': pie_ano_in, 'pie_mes_out': pie_mes_out, 'pie_ano_out': pie_ano_out})
-
- 
 @login_required
 def finance_dia(request):
     if request.method == 'POST':
@@ -92,17 +140,18 @@ def finance_dia(request):
         deposits = request.POST.get('deposits')
         if deposits != '':
             if Caixa.objects.aggregate(total=Sum('deposits'))['total'] != None:
-                total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] + float(deposits) or 0
+                total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))[
+                    'total'] + float(deposits) or 0
                 total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
             else:
                 total_deposit = 0
 
             caixa = Caixa.objects.all()
-        
 
             tot = tot_in()
             saldo = tot - total_deposit
-            caixa = Caixa(deposits=deposits, date=date.today(), obs='Depósito', saldo='R$ {:.2f}'.format(float(saldo)))
+            caixa = Caixa(deposits=deposits, date=date.today(),
+                          obs='Depósito', saldo='R$ {:.2f}'.format(float(saldo)))
             caixa.save()
             messages.add_message(request, constants.SUCCESS,
                                  'Depósito lançado com sucesso!')
@@ -110,11 +159,9 @@ def finance_dia(request):
             messages.add_message(request, constants.ERROR,
                                  'Nenhum valor foi inserido!')
 
-
         return redirect('finance_dia')
     else:
 
-       
         br_tz = pytz.timezone('America/Sao_Paulo')
         today = timezone.localtime(timezone=br_tz).date()
         finance = Finance.objects.filter(data=today)
@@ -138,26 +185,27 @@ def finance_dia(request):
         finance_tot = finance_sum - finance_minus
         finance_total = round(finance_tot, 2)
 
-        caixas_do_dia = Caixa.objects.filter(date=today).aggregate(total=Sum('deposits'))['total'] or 0
+        caixas_do_dia = Caixa.objects.filter(date=today).aggregate(
+            total=Sum('deposits'))['total'] or 0
 
-        total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] or 0
+        total_deposit = Caixa.objects.aggregate(
+            total=Sum('deposits'))['total'] or 0
         total_dep = Caixa.objects.aggregate(total=Sum('deposits'))['total']
         total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
-
 
         tot = tot_in()
         if total_dep == None:
             total_dep = 0
-        gaveta = tot - total_dep 
-        gaveta = tot - total_dep 
-        return render(request, 'finance_dia.html', {'finance': finance, 
+        gaveta = tot - total_dep
+        gaveta = tot - total_dep
+        return render(request, 'finance_dia.html', {'finance': finance,
                                                     'finance_all': finance_all,
                                                     'finance_sum': '{:.2f}'.format(finance_sum),
                                                     'finance_minus': '{:.2f}'.format(finance_minus),
                                                     'finance_total': '{:.2f}'.format(finance_total),
                                                     'qtd': qtd,
-                                                    'caixas_do_dia' : '{:.2f}'.format(caixas_do_dia), 
-                                                    'gaveta' : '{:.2f}'.format(gaveta),
+                                                    'caixas_do_dia': '{:.2f}'.format(caixas_do_dia),
+                                                    'gaveta': '{:.2f}'.format(gaveta),
                                                     })
 
 
@@ -578,6 +626,7 @@ def finance_chart():
 
     return (dates, entradas, saidas)
 
+
 def finance_year_chart():
     br_tz = pytz.timezone('America/Sao_Paulo')
     now = timezone.localtime(timezone=br_tz)
@@ -607,7 +656,47 @@ def finance_year_chart():
     return (months, entradas, saidas)
 
 
+# def pie_chart_mes_in():
+#     br_tz = pytz.timezone('America/Sao_Paulo')
 
+#     today = timezone.localtime(timezone=br_tz).date()
+#     month = today.month
+#     finances = Finance.objects.filter(
+#         data__month=month).filter(movimento='entrada')
+
+#     # Cria um dicionário para armazenar a soma dos gastos de cada categoria
+#     expenses_by_category = {}
+#     for finance in finances:
+#         category = finance.categoria
+#         if category in expenses_by_category:
+#             expenses_by_category[category] += float(finance.valor.replace(
+#                 ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+#         else:
+#             expenses_by_category[category] = float(finance.valor.replace(
+#                 ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+
+#     # Cria uma lista com as categorias e outra com os valores correspondentes
+#     categories = list(expenses_by_category.keys())
+#     values = list(expenses_by_category.values())
+
+#     # Cria um gráfico de pizza
+#     plt.figure(figsize=(8, 6))
+#     plt.pie(values, labels=categories, autopct='%1.1f%%')
+#     plt.title(f'Entadas por categoria - Mês {month}')
+#     plt.legend(loc='upper left', bbox_to_anchor=(0.9, 1.0))
+
+#     # Converte o gráfico em uma imagem
+#     from io import StringIO
+#     import base64
+#     buffer = BytesIO()
+#     plt.savefig(buffer, format='png')
+#     buffer.seek(0)
+#     image_png = buffer.getvalue()
+#     buffer.close()
+#     graphic = base64.b64encode(image_png)
+#     graphic = graphic.decode('utf-8')
+
+#     return graphic, categories, values
 def pie_chart_mes_in():
     br_tz = pytz.timezone('America/Sao_Paulo')
 
@@ -631,24 +720,8 @@ def pie_chart_mes_in():
     categories = list(expenses_by_category.keys())
     values = list(expenses_by_category.values())
 
-    # Cria um gráfico de pizza
-    plt.figure(figsize=(8, 6))
-    plt.pie(values, labels=categories, autopct='%1.1f%%')
-    plt.title(f'Entadas por categoria - Mês {month}')
-    plt.legend(loc='upper left', bbox_to_anchor=(0.9, 1.0))
-
-    # Converte o gráfico em uma imagem
-    from io import StringIO
-    import base64
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_png = buffer.getvalue()
-    buffer.close()
-    graphic = base64.b64encode(image_png)
-    graphic = graphic.decode('utf-8')
-
-    return graphic
+    # Retorna os dados em formato JSON
+    return {'categories': categories, 'values': values}
 
 
 def pie_chart_ano_in():
@@ -673,24 +746,48 @@ def pie_chart_ano_in():
     categories = list(expenses_by_category.keys())
     values = list(expenses_by_category.values())
 
-    # Cria um gráfico de pizza
-    plt.figure(figsize=(8, 6))
-    plt.pie(values, labels=categories, autopct='%1.1f%%')
-    plt.title(f'Entadas por categoria - Ano {year}')
-    plt.legend(loc='upper left', bbox_to_anchor=(0.9, 1.0))
+    return {'categories': categories, 'values': values}
 
-    # Converte o gráfico em uma imagem
-    from io import StringIO
-    import base64
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_png = buffer.getvalue()
-    buffer.close()
-    graphic = base64.b64encode(image_png)
-    graphic = graphic.decode('utf-8')
+# def pie_chart_ano_in():
+#     br_tz = pytz.timezone('America/Sao_Paulo')
+#     today = timezone.localtime(timezone=br_tz).date()
+#     year = today.year
+#     finances = Finance.objects.filter(
+#         data__year=year).filter(movimento='entrada')
 
-    return graphic
+#     # Cria um dicionário para armazenar a soma dos gastos de cada categoria
+#     expenses_by_category = {}
+#     for finance in finances:
+#         category = finance.categoria
+#         if category in expenses_by_category:
+#             expenses_by_category[category] += float(finance.valor.replace(
+#                 ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+#         else:
+#             expenses_by_category[category] = float(finance.valor.replace(
+#                 ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+
+#     # Cria uma lista com as categorias e outra com os valores correspondentes
+#     categories = list(expenses_by_category.keys())
+#     values = list(expenses_by_category.values())
+
+#     # Cria um gráfico de pizza
+#     plt.figure(figsize=(8, 6))
+#     plt.pie(values, labels=categories, autopct='%1.1f%%')
+#     plt.title(f'Entadas por categoria - Ano {year}')
+#     plt.legend(loc='upper left', bbox_to_anchor=(0.9, 1.0))
+
+#     # Converte o gráfico em uma imagem
+#     from io import StringIO
+#     import base64
+#     buffer = BytesIO()
+#     plt.savefig(buffer, format='png')
+#     buffer.seek(0)
+#     image_png = buffer.getvalue()
+#     buffer.close()
+#     graphic = base64.b64encode(image_png)
+#     graphic = graphic.decode('utf-8')
+
+#     return graphic, categories, values
 
 
 def pie_chart_mes_out():
@@ -716,24 +813,26 @@ def pie_chart_mes_out():
     categories = list(expenses_by_category.keys())
     values = list(expenses_by_category.values())
 
-    # Cria um gráfico de pizza
-    plt.figure(figsize=(8, 6))
-    plt.pie(values, labels=categories, autopct='%1.1f%%')
-    plt.title(f'Gastos por categoria - Mês {month}')
-    plt.legend(loc='upper left', bbox_to_anchor=(0.9, 1.0))
+    return {'categories': categories, 'values': values}
 
-    # Converte o gráfico em uma imagem
-    from io import StringIO
-    import base64
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_png = buffer.getvalue()
-    buffer.close()
-    graphic = base64.b64encode(image_png)
-    graphic = graphic.decode('utf-8')
+    # # Cria um gráfico de pizza
+    # plt.figure(figsize=(8, 6))
+    # plt.pie(values, labels=categories, autopct='%1.1f%%')
+    # plt.title(f'Gastos por categoria - Mês {month}')
+    # plt.legend(loc='upper left', bbox_to_anchor=(0.9, 1.0))
 
-    return graphic
+    # # Converte o gráfico em uma imagem
+    # from io import StringIO
+    # import base64
+    # buffer = BytesIO()
+    # plt.savefig(buffer, format='png')
+    # buffer.seek(0)
+    # image_png = buffer.getvalue()
+    # buffer.close()
+    # graphic = base64.b64encode(image_png)
+    # graphic = graphic.decode('utf-8')
+
+    # return graphic, categories, values
 
 
 def pie_chart_ano_out():
@@ -757,31 +856,39 @@ def pie_chart_ano_out():
     # Cria uma lista com as categorias e outra com os valores correspondentes
     categories = list(expenses_by_category.keys())
     values = list(expenses_by_category.values())
-    fig, ax = plt.subplots()
 
-    # Cria um gráfico de pizza
+    return {'categories': categories, 'values': values}
+    # fig, ax = plt.subplots()
 
-    plt.figure(figsize=(8, 6))
-    plt.pie(values, labels=categories, autopct='%1.1f%%')
-    plt.title(f'Gastos por categoria - Ano {year}')
-    plt.legend(loc='upper left', bbox_to_anchor=(0.9, 1.0))
+    # # Cria um gráfico de pizza
+    # plt.figure(figsize=(8, 6))
+    # plt.pie(values, labels=categories, autopct='%1.1f%%')
+    # plt.title(f'Gastos por categoria - Ano {year}')
+    # plt.legend(loc='upper left', bbox_to_anchor=(0.9, 1.0))
 
-    # Converte o gráfico em uma imagem
-    from io import StringIO
-    import base64
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_png = buffer.getvalue()
-    buffer.close()
-    graphic = base64.b64encode(image_png)
-    graphic = graphic.decode('utf-8')
+    # # Converte o gráfico em uma imagem
+    # from io import StringIO
+    # import base64
+    # buffer = BytesIO()
+    # plt.savefig(buffer, format='png')
+    # buffer.seek(0)
+    # image_png = buffer.getvalue()
+    # buffer.close()
+    # graphic = base64.b64encode(image_png)
+    # graphic = graphic.decode('utf-8')
 
-    return graphic
+    # # Informações sobre categorias, valores e porcentagens
+    # category_info = list(zip(categories, values))
+    # category_percentage = [(category, value / sum(values) * 100)
+    #                        for category, value in category_info]
+
+    # return graphic, category_info, category_percentage
+
 
 def deposit_list(request):
-    deposits = Caixa.objects.all()   
+    deposits = Caixa.objects.all()
     return render(request, 'deposits.html', {'deposits': deposits})
+
 
 def del_deposit(request, id):
     deposit = Caixa.objects.get(id=id)
@@ -789,6 +896,7 @@ def del_deposit(request, id):
     messages.add_message(request, constants.SUCCESS,
                          'Deposito apagado com sucesso')
     return redirect('deposit_list')
+
 
 def tot_in():
 
