@@ -612,6 +612,18 @@
                   },
                   legend: {
                       display: false,  // Remover as etiquetas
+                  },
+                  tooltips: {
+                      callbacks: {
+                          label: function (tooltipItem, data) {
+                              var dataset = data.datasets[tooltipItem.datasetIndex];
+                              var label = data.labels[tooltipItem.index];
+                              var value = dataset.data[tooltipItem.index];
+                              var total = dataset.data.reduce((a, b) => a + b, 0);
+                              var percentage = ((value / total) * 100).toFixed(2) + '%';
+                              return label + ': ' + percentage;
+                          }
+                      }
                   }
               }
           });
@@ -648,6 +660,8 @@
       createPieChartAndTable('pieChartAnoIn', 'tableContainerAnoIn', {{ pie_chart_data_ano|safe }}, maxCategoriesToShow, 'Entradas do Ano');
       createPieChartAndTable('pieChartAnoOut', 'tableContainerAnoOut', {{ pie_chart_data_ano_out|safe }}, maxCategoriesToShow, 'Saídas do Ano');
   </script>
+  
+  
   
   
     
