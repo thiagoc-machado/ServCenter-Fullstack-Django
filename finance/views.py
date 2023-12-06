@@ -88,49 +88,49 @@ def finance(request):
         pizza_chart_ano_out = pie_chart_ano_out()
 
         return render(request, 'finance.html',
-                      {
-                          'finance': finance,
-                          'gaveta': '{:.2f}'.format(gaveta),
-                          'caixas_do_dia': '{:.2f}'.format(caixas_do_dia),
-                          'saidas_json': json.dumps(saidas),
-                          'entradas_json': json.dumps(entradas),
-                          'dates_json': json.dumps(dates),
-                          'finance': finance,
-                          'total_dia': total_dia,
-                          'total_sem': total_sem,
-                          'total_mes': total_mes,
-                          'total_ano': total_ano,
-                          'saida_ano': saida_ano,
-                          'entrada_ano': entrada_ano,
-                          'entrada_dia': entrada_dia,
-                          'saida_dia': saida_dia,
-                          'entrada_sem': entrada_sem,
-                          'saida_sem': saida_sem,
-                          'entrada_mes': entrada_mes,
-                          'saida_mes': saida_mes,
-                          'dates': chart[0],
-                          'entradas': chart[1],
-                          'saidas': chart[2],
-                          'months': chart_ano[0],
-                          'in_mes': chart_ano[1],
-                          'out_mes': chart_ano[2],
-                          'pie_chart_mes_in': pizza_chart_mes_in,
-                          'pie_chart_mes_out': pizza_chart_mes_out,
-                          'pie_chart_data_ano': pizza_chart_ano_in,
-                          'pie_chart_data_ano_out': pizza_chart_ano_out,
-                          # 'pie_mes_in': pie_mes_in[0],
-                          # 'data_mes_in': pie_mes_in[1],
-                          # 'value_mes_in': pie_mes_in[2],
-                          # 'pie_mes_out': pie_mes_out[0],
-                          # 'data_mes_out': pie_mes_out[1],
-                          # 'value_mes_out': pie_mes_out[2],
-                          # 'pie_ano_in': pie_ano_in[0],
-                          # 'data_ano_in': pie_ano_in[1],
-                          # 'value_ano_in': pie_ano_in[2],
-                          # 'pie_ano_out': pie_ano_out[0],
-                          # 'data_ano_out':pie_ano_out[1],
-                          # 'value_ano_out': pie_ano_out[2],
-                      })
+                        {
+                            'finance': finance,
+                            'gaveta': '{:.2f}'.format(gaveta),
+                            'caixas_do_dia': '{:.2f}'.format(caixas_do_dia),
+                            'saidas_json': json.dumps(saidas),
+                            'entradas_json': json.dumps(entradas),
+                            'dates_json': json.dumps(dates),
+                            'finance': finance,
+                            'total_dia': total_dia,
+                            'total_sem': total_sem,
+                            'total_mes': total_mes,
+                            'total_ano': total_ano,
+                            'saida_ano': saida_ano,
+                            'entrada_ano': entrada_ano,
+                            'entrada_dia': entrada_dia,
+                            'saida_dia': saida_dia,
+                            'entrada_sem': entrada_sem,
+                            'saida_sem': saida_sem,
+                            'entrada_mes': entrada_mes,
+                            'saida_mes': saida_mes,
+                            'dates': chart[0],
+                            'entradas': chart[1],
+                            'saidas': chart[2],
+                            'months': chart_ano[0],
+                            'in_mes': chart_ano[1],
+                            'out_mes': chart_ano[2],
+                            'pie_chart_mes_in': pizza_chart_mes_in,
+                            'pie_chart_mes_out': pizza_chart_mes_out,
+                            'pie_chart_data_ano': pizza_chart_ano_in,
+                            'pie_chart_data_ano_out': pizza_chart_ano_out,
+                            # 'pie_mes_in': pie_mes_in[0],
+                            # 'data_mes_in': pie_mes_in[1],
+                            # 'value_mes_in': pie_mes_in[2],
+                            # 'pie_mes_out': pie_mes_out[0],
+                            # 'data_mes_out': pie_mes_out[1],
+                            # 'value_mes_out': pie_mes_out[2],
+                            # 'pie_ano_in': pie_ano_in[0],
+                            # 'data_ano_in': pie_ano_in[1],
+                            # 'value_ano_in': pie_ano_in[2],
+                            # 'pie_ano_out': pie_ano_out[0],
+                            # 'data_ano_out':pie_ano_out[1],
+                            # 'value_ano_out': pie_ano_out[2],
+                        })
 
 
 @login_required
@@ -151,13 +151,13 @@ def finance_dia(request):
             tot = tot_in()
             saldo = tot - total_deposit
             caixa = Caixa(deposits=deposits, date=date.today(),
-                          obs='Depósito', saldo='R$ {:.2f}'.format(float(saldo)))
+                            obs='Depósito', saldo='R$ {:.2f}'.format(float(saldo)))
             caixa.save()
             messages.add_message(request, constants.SUCCESS,
-                                 'Depósito lançado com sucesso!')
+                                    'Depósito lançado com sucesso!')
         else:
             messages.add_message(request, constants.ERROR,
-                                 'Nenhum valor foi inserido!')
+                                    'Nenhum valor foi inserido!')
 
         return redirect('finance_dia')
     else:
@@ -361,7 +361,7 @@ def new_finance(request):
         finances.save()
 
         messages.add_message(request, constants.SUCCESS,
-                             'Nova entrada cadastrada com sucesso')
+                                'Nova entrada cadastrada com sucesso')
     return redirect('finance_dia')
 
 
@@ -398,7 +398,7 @@ def new_finance_out(request):
         finances.save()
 
         messages.add_message(request, constants.SUCCESS,
-                             'Nova saída cadastrada com sucesso')
+                                'Nova saída cadastrada com sucesso')
     return redirect('finance_dia')
 
 
@@ -437,7 +437,7 @@ def edit_finance(request, id):
 
         finances.save()
         messages.add_message(request, constants.SUCCESS,
-                             'Entrada avulsa atualizada com sucesso')
+                                'Entrada avulsa atualizada com sucesso')
         return redirect('finance')
     else:
         return HttpResponseBadRequest('Invalid request method')
@@ -448,7 +448,7 @@ def del_finance(request, id):
     finances = Finance.objects.get(id=id)
     finances.delete()
     messages.add_message(request, constants.SUCCESS,
-                         'Lançamento no caixa apagado com sucesso')
+                            'Lançamento no caixa apagado com sucesso')
     return redirect('finance')
 
 
@@ -603,7 +603,7 @@ def finance_chart():
     now = timezone.localtime(timezone=br_tz)
     start_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     end_month = (start_month + timedelta(days=32)
-                 ).replace(day=1) - timedelta(days=1)
+                    ).replace(day=1) - timedelta(days=1)
     finance_data = Finance.objects.filter(data__range=[start_month, end_month])
 
     data = {}
@@ -631,7 +631,7 @@ def finance_year_chart():
     br_tz = pytz.timezone('America/Sao_Paulo')
     now = timezone.localtime(timezone=br_tz)
     start_year = now.replace(month=1, day=1, hour=0,
-                             minute=0, second=0, microsecond=0)
+                                minute=0, second=0, microsecond=0)
     end_year = start_year.replace(month=12, day=31) + timedelta(days=1)
     finance_data = Finance.objects.filter(data__range=[start_year, end_year])
 
@@ -651,7 +651,7 @@ def finance_year_chart():
     entradas = [data.get(month, {'entradas': 0})['entradas']
                 for month in range(1, 13)]
     saidas = [data.get(month, {'saidas': 0})['saidas']
-              for month in range(1, 13)]
+                for month in range(1, 13)]
 
     return (months, entradas, saidas)
 
@@ -894,7 +894,7 @@ def del_deposit(request, id):
     deposit = Caixa.objects.get(id=id)
     deposit.delete()
     messages.add_message(request, constants.SUCCESS,
-                         'Deposito apagado com sucesso')
+                            'Deposito apagado com sucesso')
     return redirect('deposit_list')
 
 
