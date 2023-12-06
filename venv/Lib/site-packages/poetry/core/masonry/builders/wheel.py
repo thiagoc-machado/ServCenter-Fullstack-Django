@@ -8,6 +8,7 @@ import os
 import shutil
 import stat
 import subprocess
+import sys
 import tempfile
 import zipfile
 
@@ -15,10 +16,9 @@ from base64 import urlsafe_b64encode
 from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING
-from typing import Iterator
 from typing import TextIO
 
-from packaging.tags import sys_tags
+import packaging.tags
 
 from poetry.core import __version__
 from poetry.core.constraints.version import parse_constraint
@@ -31,6 +31,8 @@ from poetry.core.utils.helpers import temporary_directory
 
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from packaging.utils import NormalizedName
 
     from poetry.core.poetry import Poetry
@@ -101,7 +103,7 @@ class WheelBuilder(Builder):
         if not target_dir.exists():
             target_dir.mkdir()
 
-        (fd, temp_path) = tempfile.mkstemp(suffix=".whl")
+        fd, temp_path = tempfile.mkstemp(suffix=".whl")
 
         st_mode = os.stat(temp_path).st_mode
         new_mode = normalize_file_permissions(st_mode)
@@ -163,9 +165,9 @@ class WheelBuilder(Builder):
                 # we assume that the build script will build and copy the files
                 # directly.
                 # That way they will be picked up when adding files to the wheel.
-                current_path = os.getcwd()
+                current_path = Path.cwd()
                 try:
-                    os.chdir(str(self._path))
+                    os.chdir(self._path)
                     self._run_build_script(self._package.build_script)
                 finally:
                     os.chdir(current_path)
@@ -173,9 +175,9 @@ class WheelBuilder(Builder):
                 with SdistBuilder(poetry=self._poetry).setup_py() as setup:
                     # We need to place ourselves in the temporary
                     # directory in order to build the package
-                    current_path = os.getcwd()
+                    current_path = Path.cwd()
                     try:
-                        os.chdir(str(self._path))
+                        os.chdir(self._path)
                         self._run_build_command(setup)
                     finally:
                         os.chdir(current_path)
@@ -190,13 +192,13 @@ class WheelBuilder(Builder):
 
                     lib = libs[0]
 
-                    for pkg in lib.glob("**/*"):
+                    for pkg in sorted(lib.glob("**/*")):
                         if pkg.is_dir() or self.is_excluded(pkg):
                             continue
 
-                        rel_path = str(pkg.relative_to(lib))
+                        rel_path = pkg.relative_to(lib)
 
-                        if rel_path in wheel.namelist():
+                        if rel_path.as_posix() in wheel.namelist():
                             continue
 
                         logger.debug(f"Adding: {rel_path}")
@@ -210,7 +212,7 @@ class WheelBuilder(Builder):
             self._add_file(
                 wheel,
                 abs_path,
-                Path.joinpath(Path(self.wheel_data_folder), "scripts", abs_path.name),
+                Path(self.wheel_data_folder) / "scripts" / abs_path.name,
             )
 
     def _run_build_command(self, setup: Path) -> None:
@@ -268,7 +270,7 @@ class WheelBuilder(Builder):
                 continue
 
             dest = dist_info / license_file.relative_to(self._path)
-            os.makedirs(dest.parent, exist_ok=True)
+            dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(license_file, dest)
 
         return dist_info
@@ -294,7 +296,7 @@ class WheelBuilder(Builder):
 
     def _copy_dist_info(self, wheel: zipfile.ZipFile, source: Path) -> None:
         dist_info = Path(self.dist_info)
-        for file in source.glob("**/*"):
+        for file in sorted(source.glob("**/*")):
             if not file.is_file():
                 continue
 
@@ -308,7 +310,8 @@ class WheelBuilder(Builder):
 
     @property
     def wheel_data_folder(self) -> str:
-        return f"{self._package.name}-{self._meta.version}.data"
+        name = distribution_name(self._package.name)
+        return f"{name}-{self._meta.version}.data"
 
     @property
     def wheel_filename(self) -> str:
@@ -325,38 +328,74 @@ class WheelBuilder(Builder):
         escaped_name = distribution_name(name)
         return f"{escaped_name}-{version}.dist-info"
 
+    def _get_sys_tags(self) -> list[str]:
+        """Get sys_tags via subprocess.
+        Required if poetry-core is not run inside the build environment.
+        """
+        try:
+            output = subprocess.check_output(
+                [
+                    self.executable.as_posix(),
+                    "-c",
+                    f"""
+import importlib.util
+import sys
+
+from pathlib import Path
+
+spec = importlib.util.spec_from_file_location(
+    "packaging", Path(r"{packaging.__file__}")
+)
+
+packaging = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = packaging
+
+spec = importlib.util.spec_from_file_location(
+    "packaging.tags", Path(r"{packaging.tags.__file__}")
+)
+packaging_tags = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(packaging_tags)
+for t in packaging_tags.sys_tags():
+    print(t.interpreter, t.abi, t.platform, sep="-")
+""",
+                ],
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(
+                "Failed to get sys_tags for python interpreter"
+                f" '{self.executable.as_posix()}':\n{e.output}"
+            )
+        return output.strip().splitlines()
+
     @property
     def tag(self) -> str:
         if self._package.build_script:
-            sys_tag = next(sys_tags())
+            if self.executable != Path(sys.executable):
+                # poetry-core is not run in the build environment
+                # -> this is probably not a PEP 517 build but a poetry build
+                return self._get_sys_tags()[0]
+            sys_tag = next(packaging.tags.sys_tags())
             tag = (sys_tag.interpreter, sys_tag.abi, sys_tag.platform)
         else:
             platform = "any"
-            if self.supports_python2():
-                impl = "py2.py3"
-            else:
-                impl = "py3"
-
+            impl = "py2.py3" if self.supports_python2() else "py3"
             tag = (impl, "none", platform)
-
         return "-".join(tag)
 
     def _add_file(
         self,
         wheel: zipfile.ZipFile,
-        full_path: Path | str,
-        rel_path: Path | str,
+        full_path: Path,
+        rel_path: Path,
     ) -> None:
-        full_path, rel_path = str(full_path), str(rel_path)
-        if os.sep != "/":
-            # We always want to have /-separated paths in the zip file and in
-            # RECORD
-            rel_path = rel_path.replace(os.sep, "/")
-
-        zinfo = zipfile.ZipInfo(rel_path)
+        # We always want to have /-separated paths in the zip file and in RECORD
+        rel_path_name = rel_path.as_posix()
+        zinfo = zipfile.ZipInfo(rel_path_name)
 
         # Normalize permission bits to either 755 (executable) or 644
-        st_mode = os.stat(full_path).st_mode
+        st_mode = full_path.stat().st_mode
         new_mode = normalize_file_permissions(st_mode)
         zinfo.external_attr = (new_mode & 0xFFFF) << 16  # Unix attributes
 
@@ -364,7 +403,7 @@ class WheelBuilder(Builder):
             zinfo.external_attr |= 0x10  # MS-DOS directory flag
 
         hashsum = hashlib.sha256()
-        with open(full_path, "rb") as src:
+        with full_path.open("rb") as src:
             while True:
                 buf = src.read(1024 * 8)
                 if not buf:
@@ -374,10 +413,10 @@ class WheelBuilder(Builder):
             src.seek(0)
             wheel.writestr(zinfo, src.read(), compress_type=zipfile.ZIP_DEFLATED)
 
-        size = os.stat(full_path).st_size
+        size = full_path.stat().st_size
         hash_digest = urlsafe_b64encode(hashsum.digest()).decode("ascii").rstrip("=")
 
-        self._records.append((rel_path, hash_digest, size))
+        self._records.append((rel_path_name, hash_digest, size))
 
     @contextlib.contextmanager
     def _write_to_zip(

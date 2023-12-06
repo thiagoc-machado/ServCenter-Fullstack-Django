@@ -14,7 +14,6 @@ from pathlib import Path
 from posixpath import join as pjoin
 from pprint import pformat
 from typing import TYPE_CHECKING
-from typing import Iterator
 
 from poetry.core.masonry.builders.builder import Builder
 from poetry.core.masonry.builders.builder import BuildIncludeFile
@@ -22,6 +21,8 @@ from poetry.core.masonry.utils.helpers import distribution_name
 
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from collections.abc import Iterator
     from tarfile import TarInfo
 
     from poetry.core.masonry.utils.package_include import PackageInclude
@@ -279,18 +280,16 @@ class SdistBuilder(Builder):
                 continue
 
             is_subpkg = any(
-                [filename.endswith(".py") for filename in filenames]
+                filename.endswith(".py") for filename in filenames
             ) and not all(
-                [
-                    self.is_excluded(Path(path, filename).relative_to(self._path))
-                    for filename in filenames
-                    if filename.endswith(".py")
-                ]
+                self.is_excluded(Path(path, filename).relative_to(self._path))
+                for filename in filenames
+                if filename.endswith(".py")
             )
             if is_subpkg:
                 subpkg_paths.add(from_top_level)
                 parts = from_top_level.split(os.sep)
-                packages.append(".".join([pkg_name] + parts))
+                packages.append(".".join([pkg_name, *parts]))
             else:
                 pkg, from_nearest_pkg = find_nearest_pkg(from_top_level)
 
@@ -322,7 +321,7 @@ class SdistBuilder(Builder):
         to_add = super().find_files_to_add(exclude_build)
 
         # add any additional files, starting with all LICENSE files
-        additional_files = set(self._path.glob("LICENSE*"))
+        additional_files: set[Path] = set(self._path.glob("LICENSE*"))
 
         # add script files
         additional_files.update(self.convert_script_files())
@@ -330,9 +329,13 @@ class SdistBuilder(Builder):
         # Include project files
         additional_files.add(Path("pyproject.toml"))
 
-        # add readme if it is specified
+        # add readme files if specified
         if "readme" in self._poetry.local_config:
-            additional_files.add(self._poetry.local_config["readme"])
+            readme: str | Iterable[str] = self._poetry.local_config["readme"]
+            if isinstance(readme, str):
+                additional_files.add(Path(readme))
+            else:
+                additional_files.update(Path(r) for r in readme)
 
         for additional_file in additional_files:
             file = BuildIncludeFile(

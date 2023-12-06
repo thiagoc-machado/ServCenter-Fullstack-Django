@@ -1,7 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from poetry.core.constraints.generic import AnyConstraint
+from poetry.core.constraints.generic import EmptyConstraint
 from poetry.core.constraints.generic.base_constraint import BaseConstraint
 from poetry.core.constraints.generic.constraint import Constraint
+
+
+if TYPE_CHECKING:
+    from poetry.core.constraints.generic import UnionConstraint
 
 
 class MultiConstraint(BaseConstraint):
@@ -60,15 +68,53 @@ class MultiConstraint(BaseConstraint):
 
         return False
 
-    def intersect(self, other: BaseConstraint) -> BaseConstraint:
-        if not isinstance(other, Constraint):
-            raise ValueError("Unimplemented constraint intersection")
+    def invert(self) -> UnionConstraint:
+        from poetry.core.constraints.generic import UnionConstraint
 
-        constraints = self._constraints
-        if other not in constraints:
-            constraints += (other,)
-        else:
-            constraints = (other,)
+        return UnionConstraint(*(c.invert() for c in self._constraints))
+
+    def intersect(self, other: BaseConstraint) -> BaseConstraint:
+        if isinstance(other, MultiConstraint):
+            ours = set(self.constraints)
+            union = list(self.constraints) + [
+                c for c in other.constraints if c not in ours
+            ]
+            return MultiConstraint(*union)
+
+        if not isinstance(other, Constraint):
+            return other.intersect(self)
+
+        if other in self._constraints:
+            return self
+
+        if other.value in (c.value for c in self._constraints):
+            # same value but different operator, e.g. '== "linux"' and '!= "linux"'
+            return EmptyConstraint()
+
+        if other.operator == "==":
+            return other
+
+        return MultiConstraint(*self._constraints, other)
+
+    def union(self, other: BaseConstraint) -> BaseConstraint:
+        if isinstance(other, MultiConstraint):
+            theirs = set(other.constraints)
+            common = [c for c in self.constraints if c in theirs]
+            return MultiConstraint(*common)
+
+        if not isinstance(other, Constraint):
+            return other.union(self)
+
+        if other in self._constraints:
+            return other
+
+        if other.value not in (c.value for c in self._constraints):
+            if other.operator == "!=":
+                return AnyConstraint()
+
+            return self
+
+        constraints = [c for c in self._constraints if c.value != other.value]
 
         if len(constraints) == 1:
             return constraints[0]
@@ -79,18 +125,11 @@ class MultiConstraint(BaseConstraint):
         if not isinstance(other, MultiConstraint):
             return False
 
-        return set(self._constraints) == set(other._constraints)
+        return self._constraints == other._constraints
 
     def __hash__(self) -> int:
-        h = hash("multi")
-        for constraint in self._constraints:
-            h ^= hash(constraint)
-
-        return h
+        return hash(("multi", *self._constraints))
 
     def __str__(self) -> str:
-        constraints = []
-        for constraint in self._constraints:
-            constraints.append(str(constraint))
-
+        constraints = [str(constraint) for constraint in self._constraints]
         return ", ".join(constraints)

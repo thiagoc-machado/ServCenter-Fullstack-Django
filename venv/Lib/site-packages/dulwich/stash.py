@@ -20,28 +20,23 @@
 
 """Stash handling."""
 
-from __future__ import absolute_import
 
 import os
 
-from dulwich.file import GitFile
-from dulwich.index import (
-    commit_tree,
-    iter_fresh_objects,
-)
-from dulwich.reflog import drop_reflog_entry, read_reflog
-
+from .file import GitFile
+from .index import commit_tree, iter_fresh_objects
+from .reflog import drop_reflog_entry, read_reflog
 
 DEFAULT_STASH_REF = b"refs/stash"
 
 
-class Stash(object):
+class Stash:
     """A Git stash.
 
     Note that this doesn't currently update the working tree.
     """
 
-    def __init__(self, repo, ref=DEFAULT_STASH_REF):
+    def __init__(self, repo, ref=DEFAULT_STASH_REF) -> None:
         self._ref = ref
         self._repo = repo
 
@@ -133,5 +128,5 @@ class Stash(object):
     def __getitem__(self, index):
         return list(self.stashes())[index]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(list(self.stashes()))

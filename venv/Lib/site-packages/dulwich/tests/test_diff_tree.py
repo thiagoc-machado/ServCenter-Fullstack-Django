@@ -21,50 +21,36 @@
 """Tests for file and tree diff utilities."""
 
 from itertools import permutations
-from dulwich.diff_tree import (
+
+from dulwich.tests import TestCase
+
+from ..diff_tree import (
+    CHANGE_COPY,
     CHANGE_MODIFY,
     CHANGE_RENAME,
-    CHANGE_COPY,
     CHANGE_UNCHANGED,
+    RenameDetector,
     TreeChange,
-    _merge_entries,
-    _merge_entries_py,
-    tree_changes,
-    tree_changes_for_merge,
     _count_blocks,
     _count_blocks_py,
-    _similarity_score,
-    _tree_change_key,
-    RenameDetector,
     _is_tree,
     _is_tree_py,
+    _merge_entries,
+    _merge_entries_py,
+    _similarity_score,
+    _tree_change_key,
+    tree_changes,
+    tree_changes_for_merge,
 )
-from dulwich.index import (
-    commit_tree,
-)
-from dulwich.object_store import (
-    MemoryObjectStore,
-)
-from dulwich.objects import (
-    ShaFile,
-    Blob,
-    TreeEntry,
-    Tree,
-)
-from dulwich.tests import (
-    TestCase,
-)
-from dulwich.tests.utils import (
-    F,
-    make_object,
-    functest_builder,
-    ext_functest_builder,
-)
+from ..index import commit_tree
+from ..object_store import MemoryObjectStore
+from ..objects import Blob, ShaFile, Tree, TreeEntry
+from .utils import F, ext_functest_builder, functest_builder, make_object
 
 
 class DiffTestCase(TestCase):
     def setUp(self):
-        super(DiffTestCase, self).setUp()
+        super().setUp()
         self.store = MemoryObjectStore()
         self.empty_tree = self.commit_tree([])
 
@@ -87,7 +73,7 @@ class DiffTestCase(TestCase):
 
 class TreeChangesTest(DiffTestCase):
     def setUp(self):
-        super(TreeChangesTest, self).setUp()
+        super().setUp()
         self.detector = RenameDetector(self.store)
 
     def assertMergeFails(self, merge_entries, name, mode, sha):
@@ -699,7 +685,7 @@ class RenameDetectionTest(DiffTestCase):
 
         block_cache = {}
         self.assertEqual(50, _similarity_score(blob1, blob2, block_cache=block_cache))
-        self.assertEqual(set([blob1.id, blob2.id]), set(block_cache))
+        self.assertEqual({blob1.id, blob2.id}, set(block_cache))
 
         def fail_chunks():
             self.fail("Unexpected call to as_raw_chunks()")

@@ -1,0 +1,397 @@
+{% extends "main.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'finance/css/finance.css' %}" />
+{% endblock %} {% block 'main' %}
+<div class="row all">
+  <div id="cad_cli_tit">
+    <a>Dashboard Financeiro</a>
+  </div>
+
+  {% if messages %}
+  <br />
+  {% for message in messages %}
+  <div class="alert {{message.tags}}">{{message}}</div>
+  {% endfor %} {% endif %}
+
+  <div class="col-md-3 mb-3">
+    <a href="{% url 'finance_dia' %}">
+      <div class="card bg-primary text-white">
+        <h5 class="fin-card-header">
+          <i class="cards_fin">Diario</i>
+          <div class="items">
+            <i class="cards_fin">Entradas</i>
+            <h5 class="fin-subt2">R$ {{entrada_dia}}</h5>
+          </div>
+          <div class="items">
+            <i class="cards_fin">Saídas</i>
+            <h5 class="fin-subt2">R$ {{saida_dia}}</h5>
+          </div>
+          <div class="items">
+            <i class="cards_fin">Total</i>
+            <h4 class="fin-subt2">R$ {{total_dia}}</h4>
+          </div>
+        </h5>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-3 mb-3">
+    <a href="{% url 'finance_sem' %}">
+      <div class="card bg-primary text-white">
+        <h5 class="fin-card-header">
+          <i class="cards_fin">Semanal</i>
+          <div class="items">
+            <i class="cards_fin">Entradas</i>
+            <h5 class="fin-subt2">R$ {{entrada_sem}}</h5>
+          </div>
+          <div class="items">
+            <i class="cards_fin">Saídas</i>
+            <h5 class="fin-subt2">R$ {{saida_sem}}</h5>
+          </div>
+          <div class="items">
+            <i class="cards_fin">Total</i>
+            <h4 class="fin-subt2">R$ {{total_sem}}</h4>
+          </div>
+        </h5>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-3 mb-3">
+    <a href="{% url 'finance_mes' %}">
+      <div class="card bg-primary text-white">
+        <h5 class="fin-card-header">
+          <i class="cards_fin">Mensal</i>
+          <div class="items">
+            <i class="cards_fin">Entradas</i>
+            <h5 class="fin-subt2">R$ {{entrada_mes}}</h5>
+          </div>
+          <div class="items">
+            <i class="cards_fin">Saídas</i>
+            <h5 class="fin-subt2">R$ {{saida_mes}}</h5>
+          </div>
+          <div class="items">
+            <i class="cards_fin">Total</i>
+            <h4 class="fin-subt2">R$ {{total_mes}}</h4>
+          </div>
+        </h5>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-3 mb-3">
+    <a href="{% url 'finance_ano' %}">
+      <div class="card bg-primary text-white">
+        <h5 class="fin-card-header">
+          <i class="cards_fin">Anual</i>
+          <div class="items">
+            <i class="cards_fin">Entradas</i>
+            <h5 class="fin-subt2">R$ {{entrada_ano}}</h5>
+          </div>
+          <div class="items">
+            <i class="cards_fin">Saídas</i>
+            <h5 class="fin-subt2">R$ {{saida_ano}}</h5>
+          </div>
+          <div class="items">
+            <i class="cards_fin">Total</i>
+            <h4 class="fin-subt2">R$ {{total_ano}}</h4>
+          </div>
+        </h5>
+      </div>
+    </a>
+  </div>
+  <div class="actions_bar row">
+    <div class="col-md-6 px-3">
+      <div class="row">
+        <div class="col-md-12 p-1">
+          <a href="{% url 'new_finance' %}" class="btn btn-success btn-block">Entrada avulsa no caixa</a>
+        </div>
+        <div class="col-md-12 p-1">
+          <a href="{% url 'new_finance_out' %}" class="btn btn-danger btn-block">Saída avulsa no caixa</a>
+        </div>
+        <div class="col-md-12 p-1">
+          <a href="{% url 'finance_xlrx' id=1 %}" class="btn btn-primary btn-block">Exportar movimentação</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 px-3 lanc">
+        <div class="card border-primary p-1 ">
+          <h5 class="fin-card-header text-center">
+            <i class="cards_fin">Lançar depósito</i>
+            <form class="row g-6" action="{% url 'finance' %}" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="items mb-3 w-100">
+                <input type="number" name="deposits" min="1" class="cards_fin p-0 form-control">
+              </div>
+              <div class="items mt-3 w-100">
+                <button type="submit" class="btn btn-primary btn-block">lançar deposito</button>
+              </div>
+            </form>
+          </h5>
+        </div>
+    </div>
+    
+    <div class="col-md-3 px-3 caixa">
+      <a href="{% url 'deposit_list' %}">
+        <div class="card border-primary p-1">
+          <h4 class="fin-card-header p-2">
+            <i class="cards_fin">Caixa</i>
+            <div class="items p-1">
+              <i class="cards_fin">Gaveta</i>
+              <h5 class="fin-subt2">R$ {{gaveta}}</h5>
+            </div>
+            <div class="items p-1">
+              <i class="cards_fin">Depositos hj</i>
+              <h5 class="fin-subt2" nema="total_deposits" value="{{total_deposits}}"> {{caixas_do_dia}}</h5>
+            </div>
+            <div class="items">
+            </div>
+          </h5>
+        </div>
+      </a>
+      </div>
+
+
+  </div>
+  
+    <div class="col-md-12 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <span><i class="bi bi-table me-2"></i></span> Ultimos lançamentos de
+          hoje
+        </div>
+        <div class="card-body">
+          <div id="table_cli" class="table-responsive">
+            <table
+              id="example"
+              class="table table-striped data-table"
+              style="width: 100%"
+            >
+              <thead>
+                <tr>
+                  <th>Cod.</th>
+                  <th>Obs</th>
+                  <th>Nome</th>
+                  <th>Valor</th>
+                  <th>Data</th>
+                  <th>movimento</th>
+                  <th>Categoria</th>
+                  <th>Tipo Pgto</th>
+                  <th id="acoes_th">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for finances in finance %}
+                <tr id="fin_table">
+                  <th>
+                    <a href="{% url 'edit_finance' finances.id %}"
+                      >{{ finances.id }}</a
+                    >
+                  </th>
+                  <th>
+                    <a href="{% url 'edit_finance' finances.id %}"
+                      >{{ finances.obs }}</a
+                    >
+                  </th>
+                  <th>
+                    <a href="{% url 'edit_finance' finances.id %}"
+                      >{{ finances.nome }}</a
+                    >
+                  </th>
+                  <th>
+                    <a href="{% url 'edit_finance' finances.id %}"
+                      >{{ finances.valor }}</a
+                    >
+                  </th>
+                  <th>
+                    <a href="{% url 'edit_finance' finances.id %}"
+                      >{{ finances.data }}</a
+                    >
+                  </th>
+                  <th>
+                    <a href="{% url 'edit_finance' finances.id %}"
+                      >{{ finances.movimento }}</a
+                    >
+                  </th>
+                  <th>
+                    <a href="{% url 'edit_finance' finances.id %}"
+                      >{{ finances.categoria }}</a
+                    >
+                  </th>
+                  <th>
+                    <a href="{% url 'edit_finance' finances.id %}"
+                      >{{ finances.tipo_pgto }}</a
+                    >
+                  </th>
+                  <th>
+                    <a
+                      id="btn_ed"
+                      href="{% url 'edit_finance' finances.id %}"
+                      type="button"
+                      class="btn btn-success"
+                    >
+                      <i class="bi bi-pen"></i>
+                    </a>
+                    <a
+                      href="{% url 'del_finance' finances.id %}"
+                      id="btn_ap"
+                      type="button"
+                      class="btn btn-danger delete"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </th>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot></tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12 mb-3 grfc">
+        {% block content %}
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6 gfc">
+              <canvas id="myChart"></canvas>
+            </div>
+            <div class="col-md-6 gfc">
+              <canvas id="yearChart"></canvas>
+            </div>
+          </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+      </div>
+
+      {% block content3 %}
+      <div class="row graph_pie_block">
+        <div class="col-md-6">
+          <img
+            src="data:image/png;base64,{{ pie_mes_in }}"
+            alt="Gráfico de pizza"
+            class="img-fluid pie_graph"
+          />
+        </div>
+        <div class="col-md-6">
+          <img
+            src="data:image/png;base64,{{ pie_ano_in }}"
+            alt="Gráfico de pizza"
+            class="img-fluid pie_graph"
+          />
+        </div>
+        <div class="col-md-6">
+          <img
+            src="data:image/png;base64,{{ pie_mes_out }}"
+            alt="Gráfico de pizza"
+            class="img-fluid pie_graph"
+          />
+        </div>
+        <div class="col-md-6">
+          <img
+            src="data:image/png;base64,{{ pie_ano_out }}"
+            alt="Gráfico de pizza"
+            class="img-fluid pie_graph"
+          />
+        </div>
+      </div>
+
+      
+    
+      {% endblock %}
+
+      <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var dates = JSON.parse('{{ dates_json|safe }}');
+        var entradas = JSON.parse('{{ entradas_json|safe }}');
+        var saidas = JSON.parse('{{ saidas_json|safe }}');
+        var myChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: dates.map((date) => date.day),
+            datasets: [
+              {
+                label: 'Entradas',
+                data: entradas.map((entrada) => entrada.value),
+                backgroundColor: 'green',
+              },
+              {
+                label: 'Saídas',
+                data: saidas.map((saida) => saida.value),
+                backgroundColor: 'red',
+              },
+            ],
+          },
+          options: {
+            title: {
+              display: true,
+              text: 'Fluxo de caixa - Diário',
+            },
+            legend: {
+              display: false,  // Remover as etiquetas
+            },
+            scales: {
+              yAxes: [
+                {
+                  ticks: {
+                    beginAtZero: true,
+                  },
+                },
+              ],
+              xAxes: [
+                {
+                  type: 'category',
+                  labels: dates.map((date) => date.day),
+                  ticks: {
+                    autoSkip: false,
+                  },
+                },
+              ],
+            },
+          },
+        });
+      </script>
+      {% endblock %} {% block content2 %} {% endblock %} {% block scripts2 %}
+      <script>
+        var ctx = document.getElementById('yearChart').getContext('2d');
+
+        var months = [{% for month in months %} "{{ month.month }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+        var in_mes = [{% for entrada in in_mes %}parseFloat('{{ entrada }}'){% if not forloop.last %}, {% endif %}{% endfor %}];
+        var out_mes = [{% for saida in out_mes %}parseFloat('{{ saida }}'){% if not forloop.last %}, {% endif %}{% endfor %}];
+
+        in_mes = in_mes.map(Number);
+        out_mes = out_mes.map(Number);
+
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Entradas',
+                    data: in_mes,
+                    backgroundColor: 'green',
+                }, {
+                    label: 'Saídas',
+                    data: out_mes,
+                    backgroundColor: 'red',
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Fluxo de Caixa - Mensal'
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+      </script>
+
+      {% endblock %}
+    </div>
+  </div>
+  <script src="{% static 'clients/js/script.js'%}"></script>
+  {% endblock%}
+</div>

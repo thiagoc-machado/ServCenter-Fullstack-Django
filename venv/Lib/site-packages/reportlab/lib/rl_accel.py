@@ -23,7 +23,7 @@ del reportlab
 for fn in __all__:
     D={}
     try:
-        exec('from reportlab.lib._rl_accel import %s as f' % fn,D)
+        exec('from _rl_accel import %s as f' % fn,D)
         _c_funcs[fn] = D['f']
         if testing: _py_funcs[fn] = None
     except ImportError:
@@ -331,7 +331,7 @@ del fn, f, G
 
 if __name__=='__main__':
     import sys, subprocess
-    for modname in 'reportlab.lib.rl_accel','reportlab.lib._rl_accel':
+    for modname in '_rl_accel','reportlab.lib.rl_accel':
         for cmd  in (
             #"unicode2T1('abcde fghi . jkl ; mno',fonts)",
             #"unicode2T1(u'abcde fghi . jkl ; mno',fonts)",

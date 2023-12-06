@@ -20,44 +20,26 @@
 
 """Tests for commit walking functionality."""
 
-from itertools import (
-    permutations,
-)
+from itertools import permutations
 from unittest import expectedFailure
 
-from dulwich.diff_tree import (
-    CHANGE_MODIFY,
-    CHANGE_RENAME,
-    TreeChange,
-    RenameDetector,
-)
-from dulwich.errors import (
-    MissingCommitError,
-)
-from dulwich.object_store import (
-    MemoryObjectStore,
-)
-from dulwich.objects import (
-    Commit,
-    Blob,
-)
-from dulwich.walk import ORDER_TOPO, WalkEntry, Walker, _topo_reorder
 from dulwich.tests import TestCase
-from dulwich.tests.utils import (
-    F,
-    make_object,
-    make_tag,
-    build_commit_graph,
-)
+
+from ..diff_tree import CHANGE_MODIFY, CHANGE_RENAME, RenameDetector, TreeChange
+from ..errors import MissingCommitError
+from ..object_store import MemoryObjectStore
+from ..objects import Blob, Commit
+from ..walk import ORDER_TOPO, WalkEntry, Walker, _topo_reorder
+from .utils import F, build_commit_graph, make_object, make_tag
 
 
-class TestWalkEntry(object):
-    def __init__(self, commit, changes):
+class TestWalkEntry:
+    def __init__(self, commit, changes) -> None:
         self.commit = commit
         self.changes = changes
 
-    def __repr__(self):
-        return "<TestWalkEntry commit=%s, changes=%r>" % (
+    def __repr__(self) -> str:
+        return "<TestWalkEntry commit={}, changes={!r}>".format(
             self.commit.id,
             self.changes,
         )
@@ -72,7 +54,7 @@ class TestWalkEntry(object):
 
 class WalkerTest(TestCase):
     def setUp(self):
-        super(WalkerTest, self).setUp()
+        super().setUp()
         self.store = MemoryObjectStore()
 
     def make_commits(self, commit_spec, **kwargs):
@@ -500,7 +482,7 @@ class WalkerTest(TestCase):
 
 class WalkEntryTest(TestCase):
     def setUp(self):
-        super(WalkEntryTest, self).setUp()
+        super().setUp()
         self.store = MemoryObjectStore()
 
     def make_commits(self, commit_spec, **kwargs):

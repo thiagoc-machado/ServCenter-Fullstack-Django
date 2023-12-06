@@ -6,8 +6,8 @@ from djongo.models import fields
 
 class ModelAdmin(admin.ModelAdmin):
     DJONGO_FIELDS = (
-        fields.ArrayField,
-        fields.EmbeddedField,
+        fields.ArrayModelField,
+        fields.EmbeddedModelField,
     )
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):

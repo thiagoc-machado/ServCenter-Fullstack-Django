@@ -23,8 +23,9 @@ def get_requires_for_build_wheel(
     Returns an additional list of requirements for building, as PEP508 strings,
     above and beyond those specified in the pyproject.toml file.
 
-    This implementation is optional. At the moment it only returns an empty list, which would be the same as if
-    not define. So this is just for completeness for future implementation.
+    This implementation is optional. At the moment it only returns an empty list,
+    which would be the same as if not define. So this is just for completeness
+    for future implementation.
     """
 
     return []
@@ -75,8 +76,11 @@ def build_editable(
     metadata_directory: str | None = None,
 ) -> str:
     poetry = Factory().create_poetry(Path(".").resolve(), with_groups=False)
+    metadata_path = None if metadata_directory is None else Path(metadata_directory)
 
-    return WheelBuilder.make_in(poetry, Path(wheel_directory), editable=True)
+    return WheelBuilder.make_in(
+        poetry, Path(wheel_directory), metadata_directory=metadata_path, editable=True
+    )
 
 
 get_requires_for_build_editable = get_requires_for_build_wheel

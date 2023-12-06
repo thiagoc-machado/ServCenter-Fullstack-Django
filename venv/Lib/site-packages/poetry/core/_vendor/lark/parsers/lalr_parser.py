@@ -7,15 +7,15 @@ from typing import Dict, Any
 from ..lexer import Token
 from ..utils import Serialize
 
-from .lalr_analysis import LALR_Analyzer, Shift, Reduce, IntParseTable
+from .lalr_analysis import LALR_Analyzer, Shift, IntParseTable
 from .lalr_interactive_parser import InteractiveParser
 from lark.exceptions import UnexpectedCharacters, UnexpectedInput, UnexpectedToken
 
 ###{standalone
 
 class LALR_Parser(Serialize):
-    def __init__(self, parser_conf, debug=False):
-        analysis = LALR_Analyzer(parser_conf, debug=debug)
+    def __init__(self, parser_conf, debug=False, strict=False):
+        analysis = LALR_Analyzer(parser_conf, debug=debug, strict=strict)
         analysis.compute_lalr()
         callbacks = parser_conf.callbacks
 
@@ -171,10 +171,15 @@ class _Parser:
         return self.parse_from_state(parser_state)
 
 
-    def parse_from_state(self, state):
-        # Main LALR-parser loop
+    def parse_from_state(self, state, last_token=None):
+        """Run the main LALR parser loop
+
+        Parameters:
+            state (ParseState) - the initial state. Changed in-place.
+            last_token (optional, Token) - Used only for line information in case of an empty lexer.
+        """
         try:
-            token = None
+            token = last_token
             for token in state.lexer.lex(state):
                 state.feed_token(token)
 
