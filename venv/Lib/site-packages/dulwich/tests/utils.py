@@ -29,7 +29,7 @@ import time
 import types
 import warnings
 
-from dulwich.tests import SkipTest, skipIf  # noqa: F401
+from dulwich.tests import SkipTest
 
 from ..index import commit_tree
 from ..objects import Commit, FixedSha, Tag, object_class
@@ -65,7 +65,9 @@ def open_repo(name, temp_dir=None):
     """
     if temp_dir is None:
         temp_dir = tempfile.mkdtemp()
-    repo_dir = os.path.join(os.path.dirname(__file__), "..", "..", "testdata", "repos", name)
+    repo_dir = os.path.join(
+        os.path.dirname(__file__), "..", "..", "testdata", "repos", name
+    )
     temp_repo_dir = os.path.join(temp_dir, name)
     shutil.copytree(repo_dir, temp_repo_dir, symlinks=True)
     return Repo(temp_repo_dir)
@@ -97,8 +99,6 @@ def make_object(cls, **attrs):
         monkey-patched in, so this is a class that is exactly the same only
         with a __dict__ instead of __slots__.
         """
-
-        pass
 
     TestObject.__name__ = "TestObject_" + cls.__name__
 

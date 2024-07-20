@@ -630,31 +630,44 @@ def finance_chart():
 def finance_year_chart():
     br_tz = pytz.timezone('America/Sao_Paulo')
     now = timezone.localtime(timezone=br_tz)
-    start_year = now.replace(month=1, day=1, hour=0,
-                                minute=0, second=0, microsecond=0)
+    start_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
     end_year = start_year.replace(month=12, day=31) + timedelta(days=1)
     finance_data = Finance.objects.filter(data__range=[start_year, end_year])
 
+    # print(f"Total de registros (distintos): {finance_data.distinct().count()}")
+
     data = {}
+    seen = set()
+
     for finance in finance_data:
-        month = finance.data.month
-        valor = float(finance.valor.replace(',', '.').replace(
-            'R$', '').replace(' ', '')) if finance.valor else 0
-        if finance.movimento == 'entrada':
-            data[month] = data.get(month, {'entradas': 0, 'saidas': 0})
-            data[month]['entradas'] += valor
-        elif finance.movimento == 'saída':
-            data[month] = data.get(month, {'entradas': 0, 'saidas': 0})
-            data[month]['saidas'] += valor
+        unique_entry = (finance.data, finance.valor, finance.categoria, finance.movimento)
+        if unique_entry not in seen:
+            seen.add(unique_entry)
+            month = finance.data.month
+            valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+            if finance.movimento == 'entrada':
+                if month not in data:
+                    data[month] = {'entradas': 0, 'saidas': 0}
+                data[month]['entradas'] += valor
+            elif finance.movimento == 'saída':
+                if month not in data:
+                    data[month] = {'entradas': 0, 'saidas': 0}
+                data[month]['saidas'] += valor
+
+            # Adiciona prints para debug
+            # print(f"Mês: {month}, Movimento: {finance.movimento}, Valor: {valor}")
+            # print(f"Dados atualizados para o mês {month}: {data[month]}")
 
     months = [{'month': month} for month in range(1, 13)]
-    entradas = [data.get(month, {'entradas': 0})['entradas']
-                for month in range(1, 13)]
-    saidas = [data.get(month, {'saidas': 0})['saidas']
-                for month in range(1, 13)]
+    entradas = [data.get(month, {'entradas': 0})['entradas'] for month in range(1, 13)]
+    saidas = [data.get(month, {'saidas': 0})['saidas'] for month in range(1, 13)]
+
+    # Adiciona print para verificar as somas finais
+    # print(f"Meses: {months}")
+    # print(f"Entradas: {entradas}")
+    # print(f"Saídas: {saidas}")
 
     return (months, entradas, saidas)
-
 
 # def pie_chart_mes_in():
 #     br_tz = pytz.timezone('America/Sao_Paulo')
@@ -699,52 +712,76 @@ def finance_year_chart():
 #     return graphic, categories, values
 def pie_chart_mes_in():
     br_tz = pytz.timezone('America/Sao_Paulo')
-
     today = timezone.localtime(timezone=br_tz).date()
     month = today.month
-    finances = Finance.objects.filter(
-        data__month=month).filter(movimento='entrada')
+    year = today.year
+
+    # Filtrando os registros com base no mês, ano e movimento
+    finances = Finance.objects.filter(data__month=month, data__year=year, movimento='entrada')
+
+    print(f"Total de registros (distintos): {finances.distinct().count()}")
 
     # Cria um dicionário para armazenar a soma dos gastos de cada categoria
     expenses_by_category = {}
+    seen = set()
+    total_sum = 0
+
     for finance in finances:
         category = finance.categoria
-        if category in expenses_by_category:
-            expenses_by_category[category] += float(finance.valor.replace(
-                ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
-        else:
-            expenses_by_category[category] = float(finance.valor.replace(
-                ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+        valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+        unique_entry = (finance.data, finance.valor, finance.categoria)
+
+        if unique_entry not in seen:
+            seen.add(unique_entry)
+            if category in expenses_by_category:
+                expenses_by_category[category] += valor
+            else:
+                expenses_by_category[category] = valor
+            total_sum += valor
 
     # Cria uma lista com as categorias e outra com os valores correspondentes
     categories = list(expenses_by_category.keys())
     values = list(expenses_by_category.values())
 
+    # Adiciona print para verificar a soma final
+    print(f"Categorias: {categories}")
+    print(f"Valores: {values}")
+    print(f"Soma total calculada: {total_sum}")
+    print(f"Soma total das entradas (dicionário): {sum(values)}")
+
     # Retorna os dados em formato JSON
     return {'categories': categories, 'values': values}
-
 
 def pie_chart_ano_in():
     br_tz = pytz.timezone('America/Sao_Paulo')
     today = timezone.localtime(timezone=br_tz).date()
     year = today.year
-    finances = Finance.objects.filter(
-        data__year=year).filter(movimento='entrada')
+    finances = Finance.objects.filter(data__year=year, movimento='entrada')
 
-    # Cria um dicionário para armazenar a soma dos gastos de cada categoria
+    # print(f"Total de registros (distintos): {finances.distinct().count()}")
+
     expenses_by_category = {}
-    for finance in finances:
-        category = finance.categoria
-        if category in expenses_by_category:
-            expenses_by_category[category] += float(finance.valor.replace(
-                ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
-        else:
-            expenses_by_category[category] = float(finance.valor.replace(
-                ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+    seen = set()
 
-    # Cria uma lista com as categorias e outra com os valores correspondentes
+    for finance in finances:
+        unique_entry = (finance.data, finance.valor, finance.categoria, finance.movimento)
+        if unique_entry not in seen:
+            seen.add(unique_entry)
+            category = finance.categoria
+            valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+            if category in expenses_by_category:
+                expenses_by_category[category] += valor
+            else:
+                expenses_by_category[category] = valor
+
+            # print(f"Categoria: {category}, Valor: {valor}")
+            # print(f"Soma atualizada para {category}: {expenses_by_category[category]}")
+
     categories = list(expenses_by_category.keys())
     values = list(expenses_by_category.values())
+
+    # print(f"Categorias: {categories}")
+    # print(f"Valores: {values}")
 
     return {'categories': categories, 'values': values}
 
@@ -791,27 +828,35 @@ def pie_chart_ano_in():
 
 
 def pie_chart_mes_out():
-
     br_tz = pytz.timezone('America/Sao_Paulo')
     today = timezone.localtime(timezone=br_tz).date()
     month = today.month
-    finances = Finance.objects.filter(
-        data__month=month).filter(movimento='saída')
+    finances = Finance.objects.filter(data__month=month, movimento='saída')
 
-    # Cria um dicionário para armazenar a soma dos gastos de cada categoria
+    # print(f"Total de registros (distintos): {finances.distinct().count()}")
+
     expenses_by_category = {}
-    for finance in finances:
-        category = finance.categoria
-        if category in expenses_by_category:
-            expenses_by_category[category] += float(finance.valor.replace(
-                ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
-        else:
-            expenses_by_category[category] = float(finance.valor.replace(
-                ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+    seen = set()
 
-    # Cria uma lista com as categorias e outra com os valores correspondentes
+    for finance in finances:
+        unique_entry = (finance.data, finance.valor, finance.categoria, finance.movimento)
+        if unique_entry not in seen:
+            seen.add(unique_entry)
+            category = finance.categoria
+            valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+            if category in expenses_by_category:
+                expenses_by_category[category] += valor
+            else:
+                expenses_by_category[category] = valor
+
+            # print(f"Categoria: {category}, Valor: {valor}")
+            # print(f"Soma atualizada para {category}: {expenses_by_category[category]}")
+
     categories = list(expenses_by_category.keys())
     values = list(expenses_by_category.values())
+
+    # print(f"Categorias: {categories}")
+    # print(f"Valores: {values}")
 
     return {'categories': categories, 'values': values}
 
@@ -839,23 +884,32 @@ def pie_chart_ano_out():
     br_tz = pytz.timezone('America/Sao_Paulo')
     today = timezone.localtime(timezone=br_tz).date()
     year = today.year
-    finances = Finance.objects.filter(
-        data__year=year).filter(movimento='saída')
+    finances = Finance.objects.filter(data__year=year, movimento='saída')
 
-    # Cria um dicionário para armazenar a soma dos gastos de cada categoria
+    # print(f"Total de registros (distintos): {finances.distinct().count()}")
+
     expenses_by_category = {}
-    for finance in finances:
-        category = finance.categoria
-        if category in expenses_by_category:
-            expenses_by_category[category] += float(finance.valor.replace(
-                ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
-        else:
-            expenses_by_category[category] = float(finance.valor.replace(
-                ',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+    seen = set()
 
-    # Cria uma lista com as categorias e outra com os valores correspondentes
+    for finance in finances:
+        unique_entry = (finance.data, finance.valor, finance.categoria, finance.movimento)
+        if unique_entry not in seen:
+            seen.add(unique_entry)
+            category = finance.categoria
+            valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+            if category in expenses_by_category:
+                expenses_by_category[category] += valor
+            else:
+                expenses_by_category[category] = valor
+
+            # print(f"Categoria: {category}, Valor: {valor}")
+            # print(f"Soma atualizada para {category}: {expenses_by_category[category]}")
+
     categories = list(expenses_by_category.keys())
     values = list(expenses_by_category.values())
+
+    # print(f"Categorias: {categories}")
+    # print(f"Valores: {values}")
 
     return {'categories': categories, 'values': values}
     # fig, ax = plt.subplots()

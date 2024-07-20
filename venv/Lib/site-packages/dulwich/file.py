@@ -23,6 +23,7 @@
 import os
 import sys
 import warnings
+from typing import ClassVar, Set
 
 
 def ensure_dir_exists(dirname):
@@ -114,7 +115,7 @@ class _GitFile:
         released. Typically this will happen in a finally block.
     """
 
-    PROXY_PROPERTIES = {
+    PROXY_PROPERTIES: ClassVar[Set[str]] = {
         "closed",
         "encoding",
         "errors",
@@ -123,7 +124,7 @@ class _GitFile:
         "newlines",
         "softspace",
     }
-    PROXY_METHODS = (
+    PROXY_METHODS: ClassVar[Set[str]] = {
         "__iter__",
         "flush",
         "fileno",
@@ -136,7 +137,7 @@ class _GitFile:
         "truncate",
         "write",
         "writelines",
-    )
+    }
 
     def __init__(self, filename, mode, bufsize, mask) -> None:
         self._filename = filename
@@ -205,8 +206,8 @@ class _GitFile:
             self.abort()
 
     def __del__(self) -> None:
-        if not getattr(self, '_closed', True):
-            warnings.warn('unclosed %r' % self, ResourceWarning, stacklevel=2)
+        if not getattr(self, "_closed", True):
+            warnings.warn("unclosed %r" % self, ResourceWarning, stacklevel=2)
             self.abort()
 
     def __enter__(self):

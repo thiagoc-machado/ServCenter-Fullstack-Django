@@ -134,8 +134,7 @@ def load_conf(path=None, file=None):
         try:
             confpath = os.environ["DULWICH_SWIFT_CFG"]
         except KeyError as exc:
-            raise Exception(
-                "You need to specify a configuration file") from exc
+            raise Exception("You need to specify a configuration file") from exc
     else:
         confpath = path
     if not os.path.isfile(confpath):
@@ -302,11 +301,13 @@ class SwiftConnector:
         auth_ret_json = json.loads(ret.read())
         token = auth_ret_json["access"]["token"]["id"]
         catalogs = auth_ret_json["access"]["serviceCatalog"]
-        object_store = [
+        object_store = next(
             o_store for o_store in catalogs if o_store["type"] == "object-store"
-        ][0]
+        )
         endpoints = object_store["endpoints"]
-        endpoint = [endp for endp in endpoints if endp["region"] == self.region_name][0]
+        endpoint = next(
+            endp for endp in endpoints if endp["region"] == self.region_name
+        )
         return endpoint[self.endpoint_type], token
 
     def test_root_exists(self):
@@ -1014,7 +1015,9 @@ def main(argv=sys.argv):
     }
 
     if len(sys.argv) < 2:
-        print("Usage: {} <{}> [OPTIONS...]".format(sys.argv[0], "|".join(commands.keys())))
+        print(
+            "Usage: {} <{}> [OPTIONS...]".format(sys.argv[0], "|".join(commands.keys()))
+        )
         sys.exit(1)
 
     cmd = sys.argv[1]

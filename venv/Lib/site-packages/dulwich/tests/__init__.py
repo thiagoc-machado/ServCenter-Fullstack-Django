@@ -21,11 +21,11 @@
 """Tests for Dulwich."""
 
 __all__ = [
-    'SkipTest',
-    'TestCase',
-    'BlackboxTestCase',
-    'skipIf',
-    'expectedFailure',
+    "SkipTest",
+    "TestCase",
+    "BlackboxTestCase",
+    "skipIf",
+    "expectedFailure",
 ]
 
 import doctest
@@ -37,8 +37,9 @@ import tempfile
 
 # If Python itself provides an exception, use that
 import unittest
+from typing import ClassVar, List
 from unittest import SkipTest, expectedFailure, skipIf
-from unittest import TestCase as _TestCase  # noqa: F401
+from unittest import TestCase as _TestCase
 
 
 class TestCase(_TestCase):
@@ -66,7 +67,7 @@ class BlackboxTestCase(TestCase):
     """Blackbox testing."""
 
     # TODO(jelmer): Include more possible binary paths.
-    bin_directories = [
+    bin_directories: ClassVar[List[str]] = [
         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "bin")),
         "/usr/bin",
         "/usr/local/bin",
@@ -101,7 +102,7 @@ class BlackboxTestCase(TestCase):
         # expect the user to set up file associations for .py files.
         #
         # Save us from all that headache and call python with the bin script.
-        argv = [sys.executable, self.bin_path(name)] + args
+        argv = [sys.executable, self.bin_path(name), *args]
         return subprocess.Popen(
             argv,
             stdout=subprocess.PIPE,
@@ -155,11 +156,6 @@ def self_test_suite():
 
 
 def tutorial_test_suite():
-    import dulwich.client
-    import dulwich.config
-    import dulwich.index
-    import dulwich.patch  # noqa: F401
-
     tutorial = [
         "introduction",
         "file-format",
@@ -203,7 +199,7 @@ def tutorial_test_suite():
         package="dulwich.tests",
         setUp=setup,
         tearDown=teardown,
-        *tutorial_files
+        *tutorial_files,
     )
 
 

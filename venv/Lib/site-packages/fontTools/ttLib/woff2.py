@@ -42,7 +42,6 @@ except ImportError:
 
 
 class WOFF2Reader(SFNTReader):
-
     flavor = "woff2"
 
     def __init__(self, file, checkChecksums=0, fontNumber=-1):
@@ -177,7 +176,6 @@ class WOFF2Reader(SFNTReader):
 
 
 class WOFF2Writer(SFNTWriter):
-
     flavor = "woff2"
 
     def __init__(
@@ -1019,8 +1017,6 @@ class WOFF2GlyfTable(getTableClass("glyf")):
             return
         elif glyph.isComposite():
             self._encodeComponents(glyph)
-        elif glyph.isVarComposite():
-            raise NotImplementedError
         else:
             self._encodeCoordinates(glyph)
             self._encodeOverlapSimpleFlag(glyph, glyphID)
@@ -1291,7 +1287,6 @@ class WOFF2HmtxTable(getTableClass("hmtx")):
 
 
 class WOFF2FlavorData(WOFFFlavorData):
-
     Flavor = "woff2"
 
     def __init__(self, reader=None, data=None, transformedTables=None):

@@ -2,6 +2,7 @@
 The ``jsonschema`` command line.
 """
 
+from importlib import metadata
 from json import JSONDecodeError
 from textwrap import dedent
 import argparse
@@ -11,19 +12,14 @@ import traceback
 import warnings
 
 try:
-    from importlib import metadata
-except ImportError:
-    import importlib_metadata as metadata  # type: ignore
-
-try:
     from pkgutil import resolve_name
 except ImportError:
-    from pkgutil_resolve_name import resolve_name  # type: ignore
+    from pkgutil_resolve_name import resolve_name  # type: ignore[no-redef]
 
-import attr
+from attrs import define, field
 
 from jsonschema.exceptions import SchemaError
-from jsonschema.validators import RefResolver, validator_for
+from jsonschema.validators import _RefResolver, validator_for
 
 warnings.warn(
     (
@@ -40,12 +36,12 @@ class _CannotLoadFile(Exception):
     pass
 
 
-@attr.s
+@define
 class _Outputter:
 
-    _formatter = attr.ib()
-    _stdout = attr.ib()
-    _stderr = attr.ib()
+    _formatter = field()
+    _stdout = field()
+    _stderr = field()
 
     @classmethod
     def from_arguments(cls, arguments, stdout, stderr):
@@ -57,17 +53,17 @@ class _Outputter:
 
     def load(self, path):
         try:
-            file = open(path)
-        except FileNotFoundError:
+            file = open(path)  # noqa: SIM115, PTH123
+        except FileNotFoundError as error:
             self.filenotfound_error(path=path, exc_info=sys.exc_info())
-            raise _CannotLoadFile()
+            raise _CannotLoadFile() from error
 
         with file:
             try:
                 return json.load(file)
-            except JSONDecodeError:
+            except JSONDecodeError as error:
                 self.parsing_error(path=path, exc_info=sys.exc_info())
-                raise _CannotLoadFile()
+                raise _CannotLoadFile() from error
 
     def filenotfound_error(self, **kwargs):
         self._stderr.write(self._formatter.filenotfound_error(**kwargs))
@@ -82,7 +78,7 @@ class _Outputter:
         self._stdout.write(self._formatter.validation_success(**kwargs))
 
 
-@attr.s
+@define
 class _PrettyFormatter:
 
     _ERROR_MSG = dedent(
@@ -99,7 +95,7 @@ class _PrettyFormatter:
         return self._ERROR_MSG.format(
             path=path,
             type="FileNotFoundError",
-            body="{!r} does not exist.".format(path),
+            body=f"{path!r} does not exist.",
         )
 
     def parsing_error(self, path, exc_info):
@@ -124,13 +120,13 @@ class _PrettyFormatter:
         return self._SUCCESS_MSG.format(path=instance_path)
 
 
-@attr.s
+@define
 class _PlainFormatter:
 
-    _error_format = attr.ib()
+    _error_format = field()
 
     def filenotfound_error(self, path, exc_info):
-        return "{!r} does not exist.\n".format(path)
+        return f"{path!r} does not exist.\n"
 
     def parsing_error(self, path, exc_info):
         return "Failed to parse {}: {}\n".format(
@@ -213,7 +209,7 @@ parser.add_argument(
 )
 
 
-def parse_args(args):
+def parse_args(args):  # noqa: D103
     arguments = vars(parser.parse_args(args=args or ["--help"]))
     if arguments["output"] != "plain" and arguments["error_format"]:
         raise parser.error(
@@ -235,11 +231,11 @@ def _validate_instance(instance_path, instance, validator, outputter):
     return invalid
 
 
-def main(args=sys.argv[1:]):
+def main(args=sys.argv[1:]):  # noqa: D103
     sys.exit(run(arguments=parse_args(args=args)))
 
 
-def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
+def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):  # noqa: D103
     outputter = _Outputter.from_arguments(
         arguments=arguments,
         stdout=stdout,
@@ -251,11 +247,12 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     except _CannotLoadFile:
         return 1
 
-    if arguments["validator"] is None:
-        arguments["validator"] = validator_for(schema)
+    Validator = arguments["validator"]
+    if Validator is None:
+        Validator = validator_for(schema)
 
     try:
-        arguments["validator"].check_schema(schema)
+        Validator.check_schema(schema)
     except SchemaError as error:
         outputter.validation_error(
             instance_path=arguments["schema"],
@@ -269,19 +266,19 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         def load(_):
             try:
                 return json.load(stdin)
-            except JSONDecodeError:
+            except JSONDecodeError as error:
                 outputter.parsing_error(
                     path="<stdin>", exc_info=sys.exc_info(),
                 )
-                raise _CannotLoadFile()
+                raise _CannotLoadFile() from error
         instances = ["<stdin>"]
 
-    resolver = RefResolver(
+    resolver = _RefResolver(
         base_uri=arguments["base_uri"],
         referrer=schema,
     ) if arguments["base_uri"] is not None else None
 
-    validator = arguments["validator"](schema, resolver=resolver)
+    validator = Validator(schema, resolver=resolver)
     exit_code = 0
     for each in instances:
         try:

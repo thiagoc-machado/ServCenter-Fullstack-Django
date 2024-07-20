@@ -7,31 +7,28 @@ typing.Protocol classes for jsonschema interfaces.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
-from typing import TYPE_CHECKING, Any, ClassVar, Iterable
-import sys
-
-# doing these imports with `try ... except ImportError` doesn't pass mypy
-# checking because mypy sees `typing._SpecialForm` and
-# `typing_extensions._SpecialForm` as incompatible
-#
-# see:
-# https://mypy.readthedocs.io/en/stable/runtime_troubles.html#using-new-additions-to-the-typing-module
-# https://github.com/python/mypy/issues/4427
-if sys.version_info >= (3, 8):
-    from typing import Protocol, runtime_checkable
-else:
-    from typing_extensions import Protocol, runtime_checkable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Iterable,
+    Protocol,
+    runtime_checkable,
+)
 
 # in order for Sphinx to resolve references accurately from type annotations,
 # it needs to see names like `jsonschema.TypeChecker`
 # therefore, only import at type-checking time (to avoid circular references),
 # but use `jsonschema` for any types which will otherwise not be resolvable
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    import referencing.jsonschema
+
+    from jsonschema import _typing
+    from jsonschema.exceptions import ValidationError
     import jsonschema
     import jsonschema.validators
-
-from jsonschema.exceptions import ValidationError
 
 # For code authors working on the validator protocol, these are the three
 # use-cases which should be kept in mind:
@@ -60,10 +57,19 @@ class Validator(Protocol):
             an invalid schema can lead to undefined behavior. See
             `Validator.check_schema` to validate a schema first.
 
+        registry:
+
+            a schema registry that will be used for looking up JSON references
+
         resolver:
 
             a resolver that will be used to resolve :kw:`$ref`
             properties (JSON references). If unprovided, one will be created.
+
+            .. deprecated:: v4.18.0
+
+                `RefResolver <_RefResolver>` has been deprecated in favor of
+                `referencing`, and with it, this argument.
 
         format_checker:
 
@@ -80,6 +86,7 @@ class Validator(Protocol):
 
         Subclassing validator classes now explicitly warns this is not part of
         their public API.
+
     """
 
     #: An object representing the validator's meta schema (the schema that
@@ -100,7 +107,7 @@ class Validator(Protocol):
     FORMAT_CHECKER: ClassVar[jsonschema.FormatChecker]
 
     #: A function which given a schema returns its ID.
-    ID_OF: Callable[[Any], str | None]
+    ID_OF: _typing.id_of
 
     #: The schema that will be used to validate instances
     schema: Mapping | bool
@@ -108,7 +115,7 @@ class Validator(Protocol):
     def __init__(
         self,
         schema: Mapping | bool,
-        resolver: jsonschema.validators.RefResolver | None = None,
+        registry: referencing.jsonschema.SchemaRegistry,
         format_checker: jsonschema.FormatChecker | None = None,
     ) -> None:
         ...
@@ -123,6 +130,7 @@ class Validator(Protocol):
             `jsonschema.exceptions.SchemaError`:
 
                 if the schema is invalid
+
         """
 
     def is_type(self, instance: Any, type: str) -> bool:
@@ -148,6 +156,7 @@ class Validator(Protocol):
             `jsonschema.exceptions.UnknownType`:
 
                 if ``type`` is not a known type
+
         """
 
     def is_valid(self, instance: Any) -> bool:
@@ -161,6 +170,7 @@ class Validator(Protocol):
         >>> schema = {"maxItems" : 2}
         >>> Draft202012Validator(schema).is_valid([2, 3, 4])
         False
+
         """
 
     def iter_errors(self, instance: Any) -> Iterable[ValidationError]:
@@ -199,9 +209,10 @@ class Validator(Protocol):
         Traceback (most recent call last):
             ...
         ValidationError: [2, 3, 4] is too long
+
         """
 
-    def evolve(self, **kwargs) -> "Validator":
+    def evolve(self, **kwargs) -> Validator:
         """
         Create a new validator like this one, but with given changes.
 

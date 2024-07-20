@@ -82,7 +82,7 @@ class TestProto:
                 # flush-pkt ('0000').
                 return None
         else:
-            raise HangupException()
+            raise HangupException
 
     def write_sideband(self, band, data):
         self._received[band].append(data)
@@ -175,7 +175,7 @@ class UploadPackHandlerTestCase(TestCase):
         self.assertRaises(IndexError, self._handler.proto.get_received_line, 2)
 
     def test_no_progress(self):
-        caps = list(self._handler.required_capabilities()) + [b"no-progress"]
+        caps = [*list(self._handler.required_capabilities()), b"no-progress"]
         self._handler.set_client_capabilities(caps)
         self._handler.progress(b"first message")
         self._handler.progress(b"second message")
@@ -198,7 +198,7 @@ class UploadPackHandlerTestCase(TestCase):
         self._repo.refs._peeled_refs = peeled
         self._repo.refs.add_packed_refs(refs)
 
-        caps = list(self._handler.required_capabilities()) + [b"include-tag"]
+        caps = [*list(self._handler.required_capabilities()), b"include-tag"]
         self._handler.set_client_capabilities(caps)
         self.assertEqual(
             {b"1234" * 10: ONE, b"5678" * 10: TWO},
@@ -271,9 +271,7 @@ class FindShallowTests(TestCase):
     def test_linear(self):
         c1, c2, c3 = self.make_linear_commits(3)
 
-        self.assertEqual(
-            ({c3.id}, set()), _find_shallow(self._store, [c3.id], 1)
-        )
+        self.assertEqual(({c3.id}, set()), _find_shallow(self._store, [c3.id], 1))
         self.assertEqual(
             ({c2.id}, {c3.id}),
             _find_shallow(self._store, [c3.id], 2),
@@ -543,7 +541,7 @@ class ProtocolGraphWalkerTestCase(TestCase):
     # TODO: test commit time cutoff
 
     def _handle_shallow_request(self, lines, heads):
-        self._walker.proto.set_output(lines + [None])
+        self._walker.proto.set_output([*lines, None])
         self._walker._handle_shallow_request(heads)
 
     def assertReceived(self, expected):
@@ -676,7 +674,6 @@ class AckGraphWalkerImplTestCase(TestCase):
 
 
 class SingleAckGraphWalkerImplTestCase(AckGraphWalkerImplTestCase):
-
     impl_cls = SingleAckGraphWalkerImpl
 
     def test_single_ack(self):
@@ -744,7 +741,6 @@ class SingleAckGraphWalkerImplTestCase(AckGraphWalkerImplTestCase):
 
 
 class MultiAckGraphWalkerImplTestCase(AckGraphWalkerImplTestCase):
-
     impl_cls = MultiAckGraphWalkerImpl
 
     def test_multi_ack(self):
@@ -819,7 +815,6 @@ class MultiAckGraphWalkerImplTestCase(AckGraphWalkerImplTestCase):
 
 
 class MultiAckDetailedGraphWalkerImplTestCase(AckGraphWalkerImplTestCase):
-
     impl_cls = MultiAckDetailedGraphWalkerImpl
 
     def test_multi_ack(self):
@@ -1128,7 +1123,7 @@ class ServeCommandTests(TestCase):
     def serve_command(self, handler_cls, args, inf, outf):
         return serve_command(
             handler_cls,
-            [b"test"] + args,
+            [b"test", *args],
             backend=self.backend,
             inf=inf,
             outf=outf,

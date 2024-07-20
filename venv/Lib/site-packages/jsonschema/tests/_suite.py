@@ -1,9 +1,12 @@
 """
 Python representations of the JSON Schema Test Suite tests.
 """
+from __future__ import annotations
 
+from contextlib import suppress
 from functools import partial
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 import json
 import os
 import re
@@ -11,10 +14,19 @@ import subprocess
 import sys
 import unittest
 
-import attr
+from attrs import field, frozen
+from referencing import Registry
+import referencing.jsonschema
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping, Sequence
+
+    import pyperf
 
 from jsonschema.validators import _VALIDATORS
 import jsonschema
+
+_DELIMITERS = re.compile(r"[\W\- ]+")
 
 
 def _find_suite():
@@ -35,149 +47,176 @@ def _find_suite():
     return root
 
 
-@attr.s(hash=True)
+@frozen
 class Suite:
 
-    _root = attr.ib(default=attr.Factory(_find_suite))
+    _root: Path = field(factory=_find_suite)
+    _remotes: referencing.jsonschema.SchemaRegistry = field(init=False)
 
-    def _remotes(self):
+    def __attrs_post_init__(self):
         jsonschema_suite = self._root.joinpath("bin", "jsonschema_suite")
-        remotes = subprocess.check_output(
-            [sys.executable, str(jsonschema_suite), "remotes"],
-        )
-        return json.loads(remotes.decode("utf-8"))
+        argv = [sys.executable, str(jsonschema_suite), "remotes"]
+        remotes = subprocess.check_output(argv).decode("utf-8")
 
-    def benchmark(self, runner):  # pragma: no cover
+        resources = json.loads(remotes)
+
+        li = "http://localhost:1234/locationIndependentIdentifierPre2019.json"
+        li4 = "http://localhost:1234/locationIndependentIdentifierDraft4.json"
+
+        registry = Registry().with_resources(
+            [
+                (
+                    li,
+                    referencing.jsonschema.DRAFT7.create_resource(
+                        contents=resources.pop(li),
+                    ),
+                ),
+                (
+                    li4,
+                    referencing.jsonschema.DRAFT4.create_resource(
+                        contents=resources.pop(li4),
+                    ),
+                ),
+            ],
+        ).with_contents(
+            resources.items(),
+            default_specification=referencing.jsonschema.DRAFT202012,
+        )
+        object.__setattr__(self, "_remotes", registry)
+
+    def benchmark(self, runner: pyperf.Runner):  # pragma: no cover
         for name, Validator in _VALIDATORS.items():
             self.version(name=name).benchmark(
                 runner=runner,
                 Validator=Validator,
             )
 
-    def version(self, name):
+    def version(self, name) -> Version:
         return Version(
             name=name,
-            path=self._root.joinpath("tests", name),
-            remotes=self._remotes(),
+            path=self._root / "tests" / name,
+            remotes=self._remotes,
         )
 
 
-@attr.s(hash=True)
+@frozen
 class Version:
 
-    _path = attr.ib()
-    _remotes = attr.ib()
+    _path: Path
+    _remotes: referencing.jsonschema.SchemaRegistry
 
-    name = attr.ib()
+    name: str
 
-    def benchmark(self, runner, **kwargs):  # pragma: no cover
-        for suite in self.tests():
-            for test in suite:
-                runner.bench_func(
-                    test.fully_qualified_name,
-                    partial(test.validate_ignoring_errors, **kwargs),
-                )
+    def benchmark(self, **kwargs):  # pragma: no cover
+        for case in self.cases():
+            case.benchmark(**kwargs)
 
-    def tests(self):
-        return (
-            test
-            for child in self._path.glob("*.json")
-            for test in self._tests_in(
-                subject=child.name[:-5],
-                path=child,
-            )
-        )
+    def cases(self) -> Iterable[_Case]:
+        return self._cases_in(paths=self._path.glob("*.json"))
 
-    def format_tests(self):
-        path = self._path.joinpath("optional", "format")
-        return (
-            test
-            for child in path.glob("*.json")
-            for test in self._tests_in(
-                subject=child.name[:-5],
-                path=child,
-            )
-        )
+    def format_cases(self) -> Iterable[_Case]:
+        return self._cases_in(paths=self._path.glob("optional/format/*.json"))
 
-    def optional_tests_of(self, name):
-        return self._tests_in(
-            subject=name,
-            path=self._path.joinpath("optional", name + ".json"),
-        )
+    def optional_cases_of(self, name: str) -> Iterable[_Case]:
+        return self._cases_in(paths=[self._path / "optional" / f"{name}.json"])
 
-    def to_unittest_testcase(self, *suites, **kwargs):
+    def to_unittest_testcase(self, *groups, **kwargs):
         name = kwargs.pop("name", "Test" + self.name.title().replace("-", ""))
         methods = {
-            test.method_name: test.to_unittest_method(**kwargs)
-            for suite in suites
-            for tests in suite
-            for test in tests
+            method.__name__: method
+            for method in (
+                test.to_unittest_method(**kwargs)
+                for group in groups
+                for case in group
+                for test in case.tests
+            )
         }
         cls = type(name, (unittest.TestCase,), methods)
 
-        try:
+        # We're doing crazy things, so if they go wrong, like a function
+        # behaving differently on some other interpreter, just make them
+        # not happen.
+        with suppress(Exception):
             cls.__module__ = _someone_save_us_the_module_of_the_caller()
-        except Exception:  # pragma: no cover
-            # We're doing crazy things, so if they go wrong, like a function
-            # behaving differently on some other interpreter, just make them
-            # not happen.
-            pass
 
         return cls
 
-    def _tests_in(self, subject, path):
-        for each in json.loads(path.read_text(encoding="utf-8")):
-            yield (
-                _Test(
+    def _cases_in(self, paths: Iterable[Path]) -> Iterable[_Case]:
+        for path in paths:
+            for case in json.loads(path.read_text(encoding="utf-8")):
+                yield _Case.from_dict(
+                    case,
                     version=self,
-                    subject=subject,
-                    case_description=each["description"],
-                    schema=each["schema"],
+                    subject=path.stem,
                     remotes=self._remotes,
-                    **test,
-                ) for test in each["tests"]
+                )
+
+
+@frozen
+class _Case:
+
+    version: Version
+
+    subject: str
+    description: str
+    schema: Mapping[str, Any] | bool
+    tests: list[_Test]
+    comment: str | None = None
+    specification: Sequence[dict[str, str]] = ()
+
+    @classmethod
+    def from_dict(cls, data, remotes, **kwargs):
+        data.update(kwargs)
+        tests = [
+            _Test(
+                version=data["version"],
+                subject=data["subject"],
+                case_description=data["description"],
+                schema=data["schema"],
+                remotes=remotes,
+                **test,
+            ) for test in data.pop("tests")
+        ]
+        return cls(tests=tests, **data)
+
+    def benchmark(self, runner: pyperf.Runner, **kwargs):  # pragma: no cover
+        for test in self.tests:
+            runner.bench_func(
+                test.fully_qualified_name,
+                partial(test.validate_ignoring_errors, **kwargs),
             )
 
 
-@attr.s(hash=True, repr=False)
+@frozen(repr=False)
 class _Test:
 
-    version = attr.ib()
+    version: Version
 
-    subject = attr.ib()
-    case_description = attr.ib()
-    description = attr.ib()
+    subject: str
+    case_description: str
+    description: str
 
-    data = attr.ib()
-    schema = attr.ib(repr=False)
+    data: Any
+    schema: Mapping[str, Any] | bool
 
-    valid = attr.ib()
+    valid: bool
 
-    _remotes = attr.ib()
+    _remotes: referencing.jsonschema.SchemaRegistry
 
-    comment = attr.ib(default=None)
+    comment: str | None = None
 
     def __repr__(self):  # pragma: no cover
-        return "<Test {}>".format(self.fully_qualified_name)
+        return f"<Test {self.fully_qualified_name}>"
 
     @property
     def fully_qualified_name(self):  # pragma: no cover
-        return " > ".join(
+        return " > ".join(  # noqa: FLY002
             [
                 self.version.name,
                 self.subject,
                 self.case_description,
                 self.description,
             ],
-        )
-
-    @property
-    def method_name(self):
-        delimiters = r"[\W\- ]+"
-        return "test_{}_{}_{}".format(
-            re.sub(delimiters, "_", self.subject),
-            re.sub(delimiters, "_", self.case_description),
-            re.sub(delimiters, "_", self.description),
         )
 
     def to_unittest_method(self, skip=lambda test: None, **kwargs):
@@ -189,40 +228,36 @@ class _Test:
                 with this.assertRaises(jsonschema.ValidationError):
                     self.validate(**kwargs)
 
-        fn.__name__ = self.method_name
+        fn.__name__ = "_".join(
+            [
+                "test",
+                _DELIMITERS.sub("_", self.subject),
+                _DELIMITERS.sub("_", self.case_description),
+                _DELIMITERS.sub("_", self.description),
+            ],
+        )
         reason = skip(self)
         if reason is None or os.environ.get("JSON_SCHEMA_DEBUG", "0") != "0":
             return fn
-        elif os.environ.get("JSON_SCHEMA_EXPECTED_FAILURES", "0") != "0":
+        elif os.environ.get("JSON_SCHEMA_EXPECTED_FAILURES", "0") != "0":  # pragma: no cover  # noqa: E501
             return unittest.expectedFailure(fn)
         else:
             return unittest.skip(reason)(fn)
 
     def validate(self, Validator, **kwargs):
         Validator.check_schema(self.schema)
-        resolver = jsonschema.RefResolver.from_schema(
+        validator = Validator(
             schema=self.schema,
-            store=self._remotes,
-            id_of=Validator.ID_OF,
+            registry=self._remotes,
+            **kwargs,
         )
-
-        # XXX: #693 asks to improve the public API for this, since yeah, it's
-        #      bad. Figures that since it's hard for end-users, we experience
-        #      the pain internally here too.
-        def prevent_network_access(uri):
-            raise RuntimeError(f"Tried to access the network: {uri}")
-        resolver.resolve_remote = prevent_network_access
-
-        validator = Validator(schema=self.schema, resolver=resolver, **kwargs)
-        if os.environ.get("JSON_SCHEMA_DEBUG", "0") != "0":
-            breakpoint()
+        if os.environ.get("JSON_SCHEMA_DEBUG", "0") != "0":  # pragma: no cover
+            breakpoint()  # noqa: T100
         validator.validate(instance=self.data)
 
     def validate_ignoring_errors(self, Validator):  # pragma: no cover
-        try:
+        with suppress(jsonschema.ValidationError):
             self.validate(Validator=Validator)
-        except jsonschema.ValidationError:
-            pass
 
 
 def _someone_save_us_the_module_of_the_caller():
