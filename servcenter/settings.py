@@ -148,7 +148,13 @@ DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
 DBBACKUP_STORAGE_OPTIONS = {'location': os.path.join(MEDIA_ROOT, 'backup')}
 DBBACKUP_DIRECTORY = os.path.join(MEDIA_ROOT, 'backup')
 
-CSRF_TRUSTED_ORIGINS = ['https://servcenter.up.railway.app', 'http://127.0.0.1', 'http://localhost','https://servcenter2.up.railway.app','https://sservcenter.up.railway.app']
+CSRF_TRUSTED_ORIGINS = [
+    'https://servcenter.up.railway.app', 
+    'http://127.0.0.1:8000', 
+    'http://localhost:8000', 
+    'https://servcenter2.up.railway.app',
+    'https://sservcenter.up.railway.app'
+]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 

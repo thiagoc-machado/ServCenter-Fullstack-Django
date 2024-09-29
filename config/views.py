@@ -6,6 +6,11 @@ from finance.models import Categoria_in, Categoria_out
 
 @user_passes_test(lambda u: u.is_superuser)
 def config(request):
+    # Verifique se há alguma configuração no banco de dados
+    if not Config.objects.exists():
+        # Se não houver configurações, redirecione para criar uma nova configuração
+        return redirect('new_config')
+    
     categoriaIn = Categoria_in.objects.all()
     categoriaOut = Categoria_out.objects.all()
     configs = Config.objects.all()
@@ -19,16 +24,18 @@ def new_config(request):
         form = ConfigForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
+            return redirect('config')  # Redirecionar para a página de configuração após criar uma nova
     return render(request, 'new_config.html', {'form': form})
 
 @user_passes_test(lambda u: u.is_superuser)
 def edit_config(request):
-    config = Config.objects.get(pk=2)
+    config = Config.objects.first()  # Buscar a primeira configuração existente
     form = ConfigForm(instance=config)
     if request.method == 'POST':
         form = ConfigForm(request.POST, request.FILES, instance=config)
         if form.is_valid():
             form.save()
+            return redirect('config')  # Redirecionar após editar
     return render(request, 'edit_config.html', {'form': form})
 
 def categoria_in(request):
