@@ -25,7 +25,11 @@
             <div class="panel-heading">
               <div class="row">
                 <div class="col-xs-6">
-                  <img id="logo" src="{{ config.logo1.url }}" alt="" />
+                  {% if config.logo1 %}
+                    <img id="logo" src="{{ config.logo1.url }}" alt="Logo" />
+                  {% else %}
+                    <p>No logo available</p>
+                  {% endif %}
                 </div>
               </div>
               <hr />
