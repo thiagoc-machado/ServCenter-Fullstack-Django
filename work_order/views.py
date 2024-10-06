@@ -9,6 +9,7 @@ from finance.models import Finance
 from config.models import Config
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from io import BytesIO
+import os
 import pytz
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -325,7 +326,11 @@ def del_work_order(request, id):
 @ login_required
 def cupon(request, id):
 
-    config = Config.objects.get(id=2)
+    try:
+        # Pega o último registro de Config baseado no campo 'id'
+        config = Config.objects.latest('id')
+    except Config.DoesNotExist:
+        return HttpResponse("Configuração não encontrada", status=404)
     order = work_order_model.objects.get(id=id)
 
     response = HttpResponse(content_type='application/pdf')
@@ -369,13 +374,17 @@ def cupon(request, id):
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=(80, 250))  # alterado para 80x250
 
-    # Adiciona a logo da empresa
-    photo_path = config.logo1
-    photo = ImageReader(photo_path)
-    width, height = photo.getSize()
-    ratio = width / height
-    pdf.drawImage(photo, 10, 230, width=50, height=50 /
-                  ratio)  # alterado posição Y para 230
+     # Verifica se a imagem existe antes de tentar adicioná-la
+    if config.logo1 and os.path.exists(config.logo1.path):
+        photo_path = config.logo1.path
+        photo = ImageReader(photo_path)
+        width, height = photo.getSize()
+        ratio = width / height
+        pdf.drawImage(photo, 10, 230, width=50, height=50 / ratio)
+    else:
+        # Se não houver imagem, pode adicionar uma mensagem ou simplesmente ignorar
+        pdf.setFont('Helvetica', 4)
+        pdf.drawString(5, 230, "Logo não disponível")
 
     # Adiciona as informações da empresa
     pdf.setFont('Helvetica', 4)
@@ -436,7 +445,11 @@ def cupon(request, id):
 @ login_required
 def print(request, id):
 
-    config = Config.objects.get(id=2)
+    try:
+        # Pega o último registro de Config baseado no campo 'id'
+        config = Config.objects.latest('id')
+    except Config.DoesNotExist:
+        return HttpResponse("Configuração não encontrada", status=404)
     order = work_order_model.objects.get(id=id)
 
     response = HttpResponse(content_type='application/pdf')
@@ -484,11 +497,17 @@ def print(request, id):
     pdf = canvas.Canvas(buffer, pagesize=A4)
 
     # Adiciona a logo da empresa
-    photo_path = config.logo1
-    photo = ImageReader(photo_path)
-    width, height = photo.getSize()
-    ratio = width / height
-    pdf.drawImage(photo, 20*mm, 270*mm, width=150, height=150/ratio)
+     # Verifica se a imagem existe antes de tentar adicioná-la
+    if config.logo1 and os.path.exists(config.logo1.path):
+        photo_path = config.logo1.path
+        photo = ImageReader(photo_path)
+        width, height = photo.getSize()
+        ratio = width / height
+        pdf.drawImage(photo, 10, 230, width=50, height=50 / ratio)
+    else:
+        # Se não houver imagem, pode adicionar uma mensagem ou simplesmente ignorar
+        pdf.setFont('Helvetica', 4)
+        pdf.drawString(5, 230, "Logo não disponível")
 
     # Adiciona as informações da empresa
     pdf.setFont('Helvetica', 8)
