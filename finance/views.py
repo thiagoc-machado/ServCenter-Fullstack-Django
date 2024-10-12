@@ -727,7 +727,7 @@ def pie_chart_mes_in():
     total_sum = 0
 
     for finance in finances:
-        category = finance.categoria
+        category = finance.categoria if finance.categoria else 'Outros'
         valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
         unique_entry = (finance.data, finance.valor, finance.categoria)
 
@@ -767,7 +767,7 @@ def pie_chart_ano_in():
         unique_entry = (finance.data, finance.valor, finance.categoria, finance.movimento)
         if unique_entry not in seen:
             seen.add(unique_entry)
-            category = finance.categoria
+            category = finance.categoria if finance.categoria else 'Outros'
             valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
             if category in expenses_by_category:
                 expenses_by_category[category] += valor
@@ -842,7 +842,7 @@ def pie_chart_mes_out():
         unique_entry = (finance.data, finance.valor, finance.categoria, finance.movimento)
         if unique_entry not in seen:
             seen.add(unique_entry)
-            category = finance.categoria
+            category = finance.categoria if finance.categoria else 'Outros'
             valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
             if category in expenses_by_category:
                 expenses_by_category[category] += valor
@@ -895,7 +895,7 @@ def pie_chart_ano_out():
         unique_entry = (finance.data, finance.valor, finance.categoria, finance.movimento)
         if unique_entry not in seen:
             seen.add(unique_entry)
-            category = finance.categoria
+            category = finance.categoria if finance.categoria else 'Outros'
             valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
             if category in expenses_by_category:
                 expenses_by_category[category] += valor
