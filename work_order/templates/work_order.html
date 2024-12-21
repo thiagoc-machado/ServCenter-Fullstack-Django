@@ -50,12 +50,12 @@
               </thead>
               <tbody>
                 {% for orders in workorders %}
-                <tr id="wo_table">
+                <tr id="wo_table" class="{% if orders.os_finalizada and orders.pgto_adiantado %}table-success{% endif %}">
                   <td>{{ orders.id }}</td>
                   <td><a  href="{% url 'edit_work_order' orders.id %}">{{ orders.cod_cli }}</a></td>
                   <td><a href="{% url 'edit_work_order' orders.id %}">{{ orders.cod_prod }}</a></td>
                   <td><a href="{% url 'edit_work_order' orders.id %}">{{ orders.data_entrada }}</a></td>
-                  <td><a href="{% url 'edit_work_order' orders.id %}">{{ orders.data_saida }}</a></td>
+                  <td><a href="{% url 'edit_work_order' orders.id %}">{{ orders.data_saida|default:'' }}</a></td>
                   <td><a href="{% url 'edit_work_order' orders.id %}">{{ orders.total }}</a></td>
                   <td><a href="{% url 'edit_work_order' orders.id %}">{{ orders.status }}</a></td>
                   <td>

@@ -54,12 +54,12 @@ def new_work_order(request):
         data = datetime.now().date().strftime("%Y-%m-%d")
 
         return render(request, 'new_work_order.html', {'list_client': list_client,
-                                                       'list_employee': list_employee,
-                                                       'list_service': list_service,
-                                                       'data': data,
-                                                       'hora': hora,
-                                                       'user': user,
-                                                       })
+                                                    'list_employee': list_employee,
+                                                    'list_service': list_service,
+                                                    'data': data,
+                                                    'hora': hora,
+                                                    'user': user,
+                                                    })
 
     elif request.method == "POST":
 
@@ -154,17 +154,17 @@ def new_work_order(request):
 
             if message == True:
                 messages.add_message(request, constants.SUCCESS,
-                                     'Nova ordem de serviço criada, novo cliente cadastrado com sucesso e pagamento lançado no financeiro')
+                                    'Nova ordem de serviço criada, novo cliente cadastrado com sucesso e pagamento lançado no financeiro')
             else:
                 messages.add_message(request, constants.SUCCESS,
-                                     'Nova ordem de serviço criada com sucesso e pagamento lançado no financeiro')
+                                    'Nova ordem de serviço criada com sucesso e pagamento lançado no financeiro')
         else:
             if message == True:
                 messages.add_message(request, constants.SUCCESS,
-                                     'Nova ordem de serviço criada e novo cliente cadastrado com sucesso')
+                                    'Nova ordem de serviço criada e novo cliente cadastrado com sucesso')
             else:
                 messages.add_message(request, constants.SUCCESS,
-                                     'Nova ordem de serviço criada com sucesso')
+                                    'Nova ordem de serviço criada com sucesso')
 
         return redirect('work_order')
     else:
@@ -238,6 +238,9 @@ def edit_work_order(request, id):
 
         work_orders = work_order_model.objects.get(id=id)
 
+        os_finalizada_anterior = work_orders.os_finalizada
+        work_orders.os_finalizada = True if request.POST.get("os_finalizada") else False
+
         work_orders.cod_cli = client.objects.get(
             pk=request.POST.get("cod_cli"))
         work_orders.cod_tec = Employees.objects.get(
@@ -268,6 +271,9 @@ def edit_work_order(request, id):
             "pgto_adiantado") and request.POST.get("total") != '' else False
         work_orders.os_finalizada = True if request.POST.get(
             "os_finalizada") else False
+        
+        if not os_finalizada_anterior and work_orders.os_finalizada:
+            work_orders.data_saida = datetime.now().strftime("%d/%m/%Y %H:%M")
 
         if 'photos' in request.FILES:
             # percorre cada imagem enviada
@@ -304,10 +310,10 @@ def edit_work_order(request, id):
             finances.save()
 
             messages.add_message(request, constants.SUCCESS,
-                                 'Nova ordem se serviço editada com sucesso e pagamento lançado no financeiro')
+                                'Nova ordem se serviço editada com sucesso e pagamento lançado no financeiro')
         else:
             messages.add_message(request, constants.SUCCESS,
-                                 'Nova ordem se serviço editada com sucesso')
+                                'Nova ordem se serviço editada com sucesso')
 
         return redirect('work_order')
     else:
@@ -319,7 +325,7 @@ def del_work_order(request, id):
     order = work_order_model.objects.get(id=id)
     order.delete()
     messages.add_message(request, constants.SUCCESS,
-                         'Ordem de serviço apagada com sucesso')
+                        'Ordem de serviço apagada com sucesso')
     return redirect('work_order')
 
 
@@ -374,7 +380,7 @@ def cupon(request, id):
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=(80, 250))  # alterado para 80x250
 
-     # Verifica se a imagem existe antes de tentar adicioná-la
+    # Verifica se a imagem existe antes de tentar adicioná-la
     if config.logo1 and os.path.exists(config.logo1.path):
         photo_path = config.logo1.path
         photo = ImageReader(photo_path)
@@ -497,7 +503,7 @@ def print(request, id):
     pdf = canvas.Canvas(buffer, pagesize=A4)
 
     # Adiciona a logo da empresa
-     # Verifica se a imagem existe antes de tentar adicioná-la
+    # Verifica se a imagem existe antes de tentar adicioná-la
     if config.logo1 and os.path.exists(config.logo1.path):
         photo_path = config.logo1.path
         photo = ImageReader(photo_path)

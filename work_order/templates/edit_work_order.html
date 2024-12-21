@@ -1,6 +1,7 @@
 {% extends "main.html" %} {% load static %} {% block 'head' %}
 <link rel="stylesheet" href="{% static 'css/main.css' %}" />
-<link rel="stylesheet" href="{% static 'work_order/css/work_order.css' %}" />
+{% comment %} <link rel="stylesheet" href="{% static 'work_order/css/work_order.css' %}" /> {% endcomment %}
+<link rel="stylesheet" href="{% static 'clients/css/new_client.css' %}" />
 
 {% comment %}
 <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
@@ -365,36 +366,25 @@
             class="form-check-input"
             type="checkbox"
             name="pgto_adiantado"
-            {%
-            if
-            pgto_adiantado
-            %}
+            {% if pgto_adiantado %}
             checked
-            {%
-            endif
-            %}
+            {% endif %}
           />
-          <label class="form-check-label" for="pgto_adiantado"> Pago </label>
+          <label class="form-check-label" for="pgto_adiantado">Pago</label>
         </div>
       </div>
+      
       <div class="col-12">
         <div class="form-check form-switch" id="is_active">
           <input
             class="form-check-input"
             type="checkbox"
             name="os_finalizada"
-            {%
-            if
-            os_finalizada
-            %}
+            {% if os_finalizada %}
             checked
-            {%
-            endif
-            %}
+            {% endif %}
           />
-          <label class="form-check-label" for="os_finalizada">
-            OS fechada
-          </label>
+          <label class="form-check-label" for="os_finalizada">OS fechada</label>
         </div>
       </div>
 
