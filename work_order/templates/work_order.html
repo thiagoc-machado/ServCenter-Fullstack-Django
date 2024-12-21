@@ -50,7 +50,13 @@
               </thead>
               <tbody>
                 {% for orders in workorders %}
-                <tr id="wo_table" class="{% if orders.os_finalizada and orders.pgto_adiantado %}table-success{% endif %}">
+                  <tr id="wo_table" class="
+                    {% if orders.os_finalizada and orders.pgto_adiantado %}
+                        table-success
+                    {% elif orders.os_finalizada and not orders.pgto_adiantado %}
+                        table-danger
+                    {% endif %}
+                  ">
                   <td>{{ orders.id }}</td>
                   <td><a  href="{% url 'edit_work_order' orders.id %}">{{ orders.cod_cli }}</a></td>
                   <td><a href="{% url 'edit_work_order' orders.id %}">{{ orders.cod_prod }}</a></td>
