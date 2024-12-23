@@ -77,14 +77,14 @@ def dashboard(request):
         print('{:.2f}'.format(finance_sum))
         print(round(float(finance_minus), 2))
         return render(request, 'dashboard.html', {'finance': finance,
-                                                  'all_finance': all_finance,
-                                                  'finance_sum': '{:.2f}'.format(finance_sum),
-                                                  'finance_minus': '{:.2f}'.format(finance_minus),
-                                                  'finance_total': '{:.2f}'.format(finance_total),
-                                                  'qtd': qtd,
-                                                  'values_by_hour': values_by_hour,
-                                                  'output_by_hour': output_by_hour
-                                                  })
+                                                'all_finance': all_finance,
+                                                'finance_sum': '{:.2f}'.format(finance_sum),
+                                                'finance_minus': '{:.2f}'.format(finance_minus),
+                                                'finance_total': '{:.2f}'.format(finance_total),
+                                                'qtd': qtd,
+                                                'values_by_hour': values_by_hour,
+                                                'output_by_hour': output_by_hour
+                                                })
 
     else:
         return HttpResponseBadRequest('Invalid request method')
