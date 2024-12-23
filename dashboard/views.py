@@ -63,8 +63,9 @@ def dashboard(request):
             if finances.movimento == 'entrada':
                 valor = finances.valor
                 if valor is not None:
-                    valor = float(valor.replace('R$', '').replace(',', '.'))
-                    finance_sum += valor
+                    valor = valor.strip().replace('.', '').replace(',', '.')
+                    valor_float = float(valor)
+                    finance_sum += valor_float
             elif finances.movimento == 'saída':
                 valor = finances.valor
                 if valor is not None:
