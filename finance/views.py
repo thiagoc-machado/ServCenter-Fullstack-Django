@@ -86,7 +86,9 @@ def finance(request):
         pizza_chart_ano_in = pie_chart_ano_in()
         pizza_chart_mes_out = pie_chart_mes_out()
         pizza_chart_ano_out = pie_chart_ano_out()
-
+        payment_day_data = pie_chart_dia_pgto()
+        payment_month_data = pie_chart_mes_pgto()
+        print("pizza_chart_mes_in", pizza_chart_mes_in)
         return render(request, 'finance.html',
                         {
                             'finance': finance,
@@ -118,6 +120,8 @@ def finance(request):
                             'pie_chart_mes_out': pizza_chart_mes_out,
                             'pie_chart_data_ano': pizza_chart_ano_in,
                             'pie_chart_data_ano_out': pizza_chart_ano_out,
+                            'payment_day_data': json.dumps(payment_day_data),
+                            'payment_month_data': json.dumps(payment_month_data),
                             # 'pie_mes_in': pie_mes_in[0],
                             # 'data_mes_in': pie_mes_in[1],
                             # 'value_mes_in': pie_mes_in[2],
@@ -710,6 +714,69 @@ def finance_year_chart():
 #     graphic = graphic.decode('utf-8')
 
 #     return graphic, categories, values
+def pie_chart_dia_pgto():
+    br_tz = pytz.timezone('America/Sao_Paulo')
+    today = timezone.localtime(timezone=br_tz).date()
+
+    # Filtrando os registros do dia com movimento de entrada
+    finances = Finance.objects.filter(data=today, movimento='entrada')
+
+    # Dicionário para armazenar a soma por tipo de pagamento
+    payment_methods = {}
+    for finance in finances:
+        payment_type = finance.tipo_pgto if finance.tipo_pgto else 'Outros'
+        valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+
+        if payment_type in payment_methods:
+            payment_methods[payment_type] += valor
+        else:
+            payment_methods[payment_type] = valor
+
+    # Convertendo o dicionário em listas para retorno
+    categories = list(payment_methods.keys())
+    values = list(payment_methods.values())
+
+    # Adicionando valor padrão se não houver dados
+    if not categories:
+        categories.append('Sem dados')
+        values.append(1)
+
+    return {'categories': categories, 'values': values}
+
+
+def pie_chart_mes_pgto():
+    br_tz = pytz.timezone('America/Sao_Paulo')
+    today = timezone.localtime(timezone=br_tz).date()
+    month = today.month
+    year = today.year
+
+    # Filtrando os registros do mês atual com movimento de entrada
+    finances = Finance.objects.filter(data__month=month, data__year=year, movimento='entrada')
+
+    # Dicionário para armazenar a soma por tipo de pagamento
+    payment_methods = {}
+    for finance in finances:
+        payment_type = finance.tipo_pgto if finance.tipo_pgto else 'Outros'
+        valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+
+        if payment_type in payment_methods:
+            payment_methods[payment_type] += valor
+        else:
+            payment_methods[payment_type] = valor
+
+    # Convertendo o dicionário em listas para retorno
+    categories = list(payment_methods.keys())
+    values = list(payment_methods.values())
+
+    # Adicionando valor padrão se não houver dados
+    if not categories:
+        categories.append('Sem dados')
+        values.append(1)
+
+    return {'categories': categories, 'values': values}
+
+
+
 def pie_chart_mes_in():
     br_tz = pytz.timezone('America/Sao_Paulo')
     today = timezone.localtime(timezone=br_tz).date()

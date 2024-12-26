@@ -296,6 +296,19 @@
           {% comment %} GRAFICOS PIZZA {% endcomment %}
           <div class="container">
             <div class="row">
+              <!-- Gráfico de Entradas Diárias por Tipo de Pagamento -->
+              <div class="col-md-6 gfc">
+                <canvas id="pieChartDiaPgto" style="width: 100%; height: 300px;"></canvas>
+              </div>
+              <!-- Gráfico de Entradas Mensais por Tipo de Pagamento -->
+              <div class="col-md-6 gfc">
+                <canvas id="pieChartMesPgto" style="width: 100%; height: 300px;"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="container">
+            <div class="row">
               <div class="col-md-6 gfc">
                 <canvas id="pieChartMesIn"></canvas>
                 <div class="row">
@@ -384,6 +397,55 @@
       {% endblock %} {% endcomment %}
       {% comment %} GRAFICO BARRAS DIARIO MYCHART {% endcomment %}
       <script>
+        // Função genérica para criar gráficos de pizza
+        function createPieChart(chartId, chartData, chartTitle) {
+          if (!chartData.categories.length || !chartData.values.length) {
+            console.warn(`Nenhum dado disponível para o gráfico: ${chartTitle}`);
+            return; // Evita renderizar gráficos vazios
+          }
+      
+          const ctx = document.getElementById(chartId).getContext('2d');
+          const totalValue = chartData.values.reduce((a, b) => a + b, 0); // Soma total dos valores
+      
+          new Chart(ctx, {
+            type: 'pie',
+            data: {
+              labels: chartData.categories.map((category, index) => {
+                const percentage = ((chartData.values[index] / totalValue) * 100).toFixed(2);
+                return `${category} (${percentage}%)`; // Adiciona a porcentagem ao rótulo
+              }),
+              datasets: [{
+                data: chartData.values,
+                backgroundColor: chartData.categories.map((_, index) => `hsl(${index * 36}, 70%, 60%)`),
+              }],
+            },
+            options: {
+              title: {
+                display: true,
+                text: chartTitle,
+              },
+              responsive: true,
+              maintainAspectRatio: false,
+            },
+          });
+        }
+      
+        // Função para criar tabelas dinâmicas
+        function createTable(tableContainerId, chartData) {
+          const tableContainer = document.getElementById(tableContainerId);
+          const totalValue = chartData.values.reduce((a, b) => a + b, 0);
+          let tableHTML = '<table class="table table-bordered"><thead><tr><th>Categoria</th><th>Valor</th><th>Porcentagem</th></tr></thead><tbody>';
+          
+          chartData.categories.forEach((category, index) => {
+            const percentage = ((chartData.values[index] / totalValue) * 100).toFixed(2);
+            tableHTML += `<tr><td>${category}</td><td>${chartData.values[index].toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td><td>${percentage}%</td></tr>`;
+          });
+      
+          tableHTML += '</tbody></table>';
+          tableContainer.innerHTML = tableHTML;
+        }
+      
+        // Dados existentes para o gráfico de barras diário
         var ctx = document.getElementById('myChart').getContext('2d');
         var dates = JSON.parse('{{ dates_json|safe }}');
         var entradas = JSON.parse('{{ entradas_json|safe }}');
@@ -430,35 +492,47 @@
             },
           },
         });
-        var chartValuesTableBody = document.querySelector('#chartValuesTable tbody');
-        var chartValuesTableBody = document.querySelector('#chartValuesTable tbody');
-
-          function formatCurrency(value) {
-            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-          }
       
-
+        // Adicionar valores à tabela existente
+        var chartValuesTableBody = document.querySelector('#chartValuesTable tbody');
+        function formatCurrency(value) {
+          return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        }
+      
         dates.forEach((date, index) => {
-            var tableRow = chartValuesTableBody.insertRow();
-            
-            // Coluna de Data
-            var dateCell = tableRow.insertCell(0);
-            dateCell.textContent = date.day;
-
-            // Coluna de Entrada
-            var entradaCell = tableRow.insertCell(1);
-            entradaCell.textContent = formatCurrency(entradas[index].value);
-
-            // Coluna de Saída
-            var saidaCell = tableRow.insertCell(2);
-            saidaCell.textContent = formatCurrency(saidas[index].value);
-
-            // Coluna de Total
-            var totalCell = tableRow.insertCell(3);
-            var totalValue = entradas[index].value - saidas[index].value;
-            totalCell.textContent = formatCurrency(totalValue);
+          var tableRow = chartValuesTableBody.insertRow();
+      
+          // Coluna de Data
+          var dateCell = tableRow.insertCell(0);
+          dateCell.textContent = date.day;
+      
+          // Coluna de Entrada
+          var entradaCell = tableRow.insertCell(1);
+          entradaCell.textContent = formatCurrency(entradas[index].value);
+      
+          // Coluna de Saída
+          var saidaCell = tableRow.insertCell(2);
+          saidaCell.textContent = formatCurrency(saidas[index].value);
+      
+          // Coluna de Total
+          var totalCell = tableRow.insertCell(3);
+          var totalValue = entradas[index].value - saidas[index].value;
+          totalCell.textContent = formatCurrency(totalValue);
         });
+      
+        // Novos gráficos de pizza
+        const pieChartDiaPgtoData = {{ payment_day_data|safe }};
+        const pieChartMesPgtoData = {{ payment_month_data|safe }};
+      
+        // Criação dos gráficos e tabelas correspondentes
+        createPieChart('pieChartDiaPgto', pieChartDiaPgtoData, 'Entradas Diárias por Tipo de Pagamento');
+        createPieChart('pieChartMesPgto', pieChartMesPgtoData, 'Entradas Mensais por Tipo de Pagamento');
+      
+        createTable('tableContainerDiaPgto', pieChartDiaPgtoData);
+        createTable('tableContainerMesPgto', pieChartMesPgtoData);
       </script>
+      
+      
 
       {% endblock %} {% block content2 %} {% endblock %} {% block scripts2 %}
 

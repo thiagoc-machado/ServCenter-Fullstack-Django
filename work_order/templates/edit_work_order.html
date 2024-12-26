@@ -356,8 +356,20 @@
           <option>Débito</option>
           <option>Depósito</option>
           <option>Boleto</option>
+          <option>Cheque</option>
         </select>
       </div>
+
+      <div class="col-md-2">
+        <label for="Categoria_in" class="form-label">Categoria</label>
+        <select name="categoria" id="Categoria_in" class="form-select">
+            {% for cat in categoria %}
+                <option value="{{ cat.id }}" {% if cat.id == categoria_selecionada.id %}selected{% endif %}>
+                    {{ cat.categoria }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
 
       <p></p>
       <div class="col-12">

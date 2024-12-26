@@ -312,8 +312,19 @@
                 <option>Débito</option>
                 <option>Depósito</option>
                 <option>Boleto</option>
+                <option>Cheque</option>
             </select>
         </div>
+        
+        <div class="col-md-2">
+            <label for="Categoria_in" class="form-label">Categoria</label>
+            <select name="categoria" id="Categoria_in" class="form-select">
+                {% for cat in categoria %}
+                    <option value="{{ cat.id }}">{{ cat.categoria }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
 
         <p></p>
         <div class="col-12">
@@ -323,7 +334,7 @@
                     type="checkbox"
                     name="pgto_adiantado"
                 />
-              <label class="form-check-label" for="pgto_adiantado" value="{{pgto_adiantado}}"> Pago adiantado </label>
+                <label class="form-check-label" for="pgto_adiantado" value="{{pgto_adiantado}}"> Pago adiantado </label>
             </div>
         </div>
         <div class="col-12">
@@ -333,7 +344,7 @@
                     type="checkbox"
                     name="os_finalizada"
                 />
-              <label class="form-check-label" for="os_finalizada" value="{{os_finalizada}}"> OS fechada </label>
+                <label class="form-check-label" for="os_finalizada" value="{{os_finalizada}}"> OS fechada </label>
             </div>
         </div>
 
@@ -341,13 +352,13 @@
     
     <p></p>
     <div class="col-12">
-      <button type="submit" class="btn btn-primary">Salvar</button>
+        <button type="submit" class="btn btn-primary">Salvar</button>
     </div>
     <div class="col-12"></div>
-  </form>
-  <div class="col-1">
-    <a href="{% url 'work_order' %}" id="canc_btn" type="submit" class="btn btn-danger">cancelar</a>
-  </div>
+</form>
+    <div class="col-1">
+        <a href="{% url 'work_order' %}" id="canc_btn" type="submit" class="btn btn-danger">cancelar</a>
+    </div>
 </div>
 <script src="{% static 'work_order/js/script.js'%}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/accounting.js/0.4.1/accounting.min.js"></script>

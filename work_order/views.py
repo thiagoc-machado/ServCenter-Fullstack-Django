@@ -22,6 +22,8 @@ from django.contrib.auth.decorators import user_passes_test
 br_tz = pytz.timezone('America/Sao_Paulo')
 time_br = datetime.now(br_tz).time()
 
+from finance.models import Categoria_in, Finance
+
 
 @login_required
 def work_order(request):
@@ -42,6 +44,8 @@ def new_work_order(request):
         list_client = client.objects.all()
         user = request.user
 
+        categoria = Categoria_in.objects.all()
+
         try:
             service = Services.objects.get(cod=id)
         except:
@@ -59,6 +63,7 @@ def new_work_order(request):
                                                     'data': data,
                                                     'hora': hora,
                                                     'user': user,
+                                                    'categoria': categoria
                                                     })
 
     elif request.method == "POST":
@@ -118,6 +123,11 @@ def new_work_order(request):
             pgto_adiantado=pgto_adiantado,
             os_finalizada=os_finalizada,
         )
+        # Associar a categoria
+        categoria_id = request.POST.get("categoria")
+        if categoria_id:
+            work_orders.categoria = Categoria_in.objects.get(pk=categoria_id)
+
         # if not client.objects.filter(pk=request.POST.get("cod_cli")).exists():
         if 'photos' in request.FILES:
             # percorre cada imagem enviada
@@ -176,6 +186,7 @@ def edit_work_order(request, id):
     list_client = client.objects.all()
     list_employee = Employees.objects.all()
     list_service = Services.objects.all()
+    categoria = Categoria_in.objects.all()
 
     try:
         service = Services.objects.get(cod=id)
@@ -187,6 +198,9 @@ def edit_work_order(request, id):
         tipo = ""
 
     if request.method == "GET":
+
+        categoria_in = Categoria_in.objects.all()
+
 
         order = work_order_model.objects.get(id=id)
         fotos = image.objects.filter(order_id=id)
@@ -230,6 +244,9 @@ def edit_work_order(request, id):
             'data_entrada': work_order_model.objects.get(id=id).data_entrada.strftime("%Y-%m-%d"),
             'data_saida': work_order_model.objects.get(id=id).data_saida,
             'data_alteracao': datetime.now().date(),
+            'categoria_in': categoria_in,
+            'categoria': categoria,
+            'categoria_selecionada': order.categoria,
         })
 
     if request.method == "POST":
@@ -271,6 +288,8 @@ def edit_work_order(request, id):
             "pgto_adiantado") and request.POST.get("total") != '' else False
         work_orders.os_finalizada = True if request.POST.get(
             "os_finalizada") else False
+        work_orders.categoria = Categoria_in.objects.get(pk=request.POST.get("categoria"))
+        
         
         if not os_finalizada_anterior and work_orders.os_finalizada:
             work_orders.data_saida = datetime.now().strftime("%d/%m/%Y %H:%M")
@@ -297,6 +316,7 @@ def edit_work_order(request, id):
             valor = request.POST.get("total")
             movimento = 'entrada'
             tipo_pgto = request.POST.get("modo_pgto")
+            categoria = request.POST.get("categoria")
 
             finances = Finance(
                 obs=obs,
@@ -306,6 +326,7 @@ def edit_work_order(request, id):
                 movimento=movimento,
                 hora=time_br,
                 tipo_pgto=tipo_pgto,
+                categoria=categoria
             )
             finances.save()
 

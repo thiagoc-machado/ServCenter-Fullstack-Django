@@ -56,42 +56,43 @@ def backup_sqlite(request):
 def restore_backup(request):
     if request.method == 'POST':
         if 'backup' not in request.FILES:
-            return HttpResponse('Arquivo de backup não enviado. Por favor, tente novamente.')
+            messages.add_message(request, constants.ERROR, 'Arquivo de backup não enviado. Por favor, tente novamente.')
+            return redirect('backup')
 
-        backup_file: InMemoryUploadedFile = request.FILES['backup']
-        backup_file: InMemoryUploadedFile = request.FILES['backup']
+        # Salva o arquivo de backup enviado
+        backup_file = request.FILES['backup']
+        backup_path = os.path.join(settings.MEDIA_ROOT, 'backup', 'backup.dump')
+        with open(backup_path, 'wb') as f:
+            for chunk in backup_file.chunks():
+                f.write(chunk)
 
-        # Crie um diretório temporário para extrair o arquivo ZIP
-        temp_extract_path = os.path.join(settings.MEDIA_ROOT, 'temp_extract')
-        os.makedirs(temp_extract_path, exist_ok=True)
+        # Fecha a conexão com o banco de dados antes de restaurar
+        connection.close()
 
-        # Extraia o arquivo ZIP para o diretório temporário
-        with zipfile.ZipFile(backup_file, 'r') as backup_zip:
-            backup_zip.extractall(temp_extract_path)
+        try:
+            # Etapa 1: Apagar o banco de dados atual
+            db_path = settings.DATABASES['default']['NAME']
+            if os.path.exists(db_path):
+                os.remove(db_path)
 
-        # Restaure o banco de dados usando o arquivo de backup extraído
-        db_backup_path = os.path.join(temp_extract_path, 'backup.dump')
-        call_command('dbrestore', input_path=db_backup_path)
+            # Etapa 2: Aplicar migrações para recriar a estrutura
+            call_command('migrate', interactive=False)
 
-        # Copie os arquivos de mídia extraídos para o diretório de mídia do Django
-        media_root_len = len(settings.MEDIA_ROOT)
-        for root, dirs, files in os.walk(temp_extract_path):
-            for file in files:
-                if file != 'backup.dump':
-                    file_path = os.path.join(root, file)
-                    destination_path = os.path.join(settings.MEDIA_ROOT, file_path[media_root_len:])
-                    # Copie o arquivo para o diretório de mídia, preservando a estrutura do diretório
-                    default_storage.save(destination_path, default_storage.open(file_path))
+            # Etapa 3: Restaurar os dados do backup
+            call_command('dbrestore', input_path=backup_path, interactive=False)
 
-        # Limpe o diretório temporário
-        shutil.rmtree(temp_extract_path)
-        messages.add_message(request, constants.SUCCESS,
-                                 'Restauração de backup realizado com sucesso!')
-        return HttpResponse('Restauração concluída com sucesso.')
+            messages.add_message(request, constants.SUCCESS, 'Backup restaurado e migrações aplicadas com sucesso.')
+        except Exception as e:
+            messages.add_message(request, constants.ERROR, f'Erro ao restaurar backup: {str(e)}')
+            return redirect('backup')
+
+        # Remove o arquivo de backup para evitar duplicação
+        os.remove(backup_path)
+
+        return redirect('backup')
     else:
-        messages.add_message(request, constants.ERROR,
-                                 'Restauração não concluída.')
-        return render(request, 'backup.html')  # Renderize a página de upload do arquivo ZIP
+        return render(request, 'backup.html')
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def backup_download(request):

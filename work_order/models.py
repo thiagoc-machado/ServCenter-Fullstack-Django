@@ -4,6 +4,7 @@ from clients.models import client
 from employees.models import Employees
 from services.models import Services
 from django.contrib.auth.models import User
+from finance.models import Finance, Categoria_in
 
 
 class work_order(models.Model):
@@ -12,6 +13,7 @@ class work_order(models.Model):
     cod_tec = models.ForeignKey(Employees, on_delete=models.DO_NOTHING)
     cod_ser = models.ForeignKey(Services, on_delete=models.DO_NOTHING)
     cod_user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    categoria = models.ForeignKey(Categoria_in, on_delete=models.DO_NOTHING, null=True, blank=True)
     whatsapp = models.CharField(max_length=20, null=True, blank=True)
     obs_cli = models.CharField(max_length=50, null=True, blank=True)
     data_entrada = models.DateField(auto_now_add=True, blank=True)
