@@ -738,8 +738,8 @@ def pie_chart_dia_pgto():
 
     # Adicionando valor padrão se não houver dados
     if not categories:
-        categories.append('Sem dados')
-        values.append(1)
+        categories.append('')
+        values.append(0)
 
     return {'categories': categories, 'values': values}
 
