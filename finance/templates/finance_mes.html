@@ -4,7 +4,7 @@
 {% endblock %} {% block 'main' %}
 <div class="row all">
   <div id="cad_cli_tit">
-    <a>Financeiro - Resumo mensal</a>
+    <a>Financeiro - Resumo mensal Janeiro</a>
   </div>
 
   {% if messages %}
@@ -40,19 +40,27 @@
 
   <div class="actions_bar row">
     <div class="col-md-2">
-      <a
-        href="{% url 'new_finance' %}"
-        class="btn btn-success btn-block"
-        id="btn_nc"
-        >Entrada avulsa no caixa</a
-      >
+      <select name="inputMes" class="form-select" value="{{inputMes}}" id="mes" label="Mes">
+        <option selected>Janeiro</option>
+        <option>Fevereiro</option>
+        <option>Março</option>
+        <option>Abril</option>
+        <option>Maio</option>
+        <option>Junho</option>
+        <option>Julho</option>
+        <option>Agosto</option>
+        <option>Setembro</option>
+        <option>Outubro</option>
+        <option>Novembro</option>
+        <option>Dezembro</option>
+      </select>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-1">
       <a
-        href="{% url 'new_finance_out' %}"
-        class="btn btn-danger btn-block"
+        href="#"
+        class="btn btn-success btn-block"
         id="btn_ac"
-        >Saída avulsa no caixa</a
+        >Filtrar</a
       >
     </div>
     <div class="col-md-2">

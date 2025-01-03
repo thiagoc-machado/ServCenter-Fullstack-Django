@@ -76,7 +76,7 @@
     {% if movimento == 'entrada' %}
       <div class="col-md-2">
         <label for="inputCategoria_in" class="form-label">Categoria</label>
-        <select name="inputCategoria_in" class="form-select" value="{{Categoria}}">
+        <select name="inputCategoria" class="form-select" value="{{inputCategoria}}">
           <option selected>{{categoria}}</option>
           {% for cat in categoria_in %}
           <option>{{cat.categoria}}</option>
@@ -87,7 +87,7 @@
     {% else %}
       <div class="col-md-2">
         <label for="inputCategoria" class="form-label">Categoria</label>
-        <select name="inputCategoria" class="form-select" value="{{Categoria}}">
+        <select name="inputCategoria" class="form-select" value="{{inputCategoria}}">
           <option selected>{{categoria}}</option>
           {% for cat in categoria_out %}
           <option>{{cat.categoria}}</option>

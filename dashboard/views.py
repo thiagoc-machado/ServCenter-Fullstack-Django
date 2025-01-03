@@ -63,13 +63,13 @@ def dashboard(request):
             if finances.movimento == 'entrada':
                 valor = finances.valor
                 if valor is not None:
-                    valor = valor.strip().replace('.', '').replace(',', '.')
+                    valor = valor.strip().replace('R$', '').replace('.', '').replace(',', '.')
                     valor_float = float(valor)
                     finance_sum += valor_float
             elif finances.movimento == 'saída':
                 valor = finances.valor
                 if valor is not None:
-                    valor = float(valor.replace('R$', '').replace(',', '.'))
+                    valor = float(valor.replace('R$ ', '').replace(',', '.'))
                     finance_min -= valor
 
         finance_minus = finance_min * -1

@@ -430,9 +430,13 @@ def edit_finance(request, id):
         finances.obs = request.POST.get("inputObs")
         finances.nome = request.POST.get("inputNome")
         finances.data = request.POST.get("inputData")
-        finances.valor = request.POST.get("inputValor")
+        # Processa e formata o valor
+        input_valor = request.POST.get("inputValor").replace(',', '.')
+        valor = round(float(input_valor), 2)
+        finances.valor = f'R$ {valor:.2f}'  # Formata o valor com "R$ {:.2f}"
         finances.movimento = request.POST.get("in_out")
         finances.tipo_pgto = request.POST.get("inputTipoPgto")
+        finances.categoria = request.POST.get("inputCategoria")
 
         if finances.movimento == 'on':
             finances.movimento = "entrada"
@@ -770,8 +774,8 @@ def pie_chart_mes_pgto():
 
     # Adicionando valor padrão se não houver dados
     if not categories:
-        categories.append('Sem dados')
-        values.append(1)
+        categories.append('')
+        values.append(0)
 
     return {'categories': categories, 'values': values}
 

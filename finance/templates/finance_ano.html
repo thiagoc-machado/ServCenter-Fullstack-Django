@@ -4,7 +4,7 @@
 {% endblock %} {% block 'main' %}
 <div class="row all">
   <div id="cad_cli_tit">
-    <a>Financeiro - Resumo anual</a>
+    <a>Financeiro - Resumo anual 2025</a>
   </div>
 
   {% if messages %}
@@ -37,22 +37,21 @@
       </h5>
     </div>
   </div>
-
   <div class="actions_bar row">
     <div class="col-md-2">
-      <a
-        href="{% url 'new_finance' %}"
-        class="btn btn-success btn-block"
-        id="btn_nc"
-        >Entrada avulsa no caixa</a
-      >
+      <select name="inputAno" class="form-select" value="{{inputAno}}" id="ano" label="Ano">
+        <option selected>2025</option>
+        <option>2024</option>
+        <option>2023</option>
+        <option>2022</option>
+      </select>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-1">
       <a
-        href="{% url 'new_finance_out' %}"
-        class="btn btn-danger btn-block"
+        href="#"
+        class="btn btn-success btn-block"
         id="btn_ac"
-        >Saída avulsa no caixa</a
+        >Filtrar</a
       >
     </div>
     <div class="col-md-2">
