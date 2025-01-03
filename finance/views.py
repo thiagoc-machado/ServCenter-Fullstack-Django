@@ -437,7 +437,6 @@ def edit_finance(request, id):
         finances.movimento = request.POST.get("in_out")
         finances.tipo_pgto = request.POST.get("inputTipoPgto")
         finances.categoria = request.POST.get("inputCategoria")
-
         if finances.movimento == 'on':
             finances.movimento = "entrada"
         else:
