@@ -431,7 +431,7 @@ def edit_finance(request, id):
         finances.nome = request.POST.get("inputNome")
         finances.data = request.POST.get("inputData")
         # Processa e formata o valor
-        input_valor = request.POST.get("inputValor").replace(',', '.')
+        input_valor = request.POST.get("inputValor").replace(',', '.').replace('R$', '').replace(' ', '')
         valor = round(float(input_valor), 2)
         finances.valor = f'R$ {valor:.2f}'  # Formata o valor com "R$ {:.2f}"
         finances.movimento = request.POST.get("in_out")
