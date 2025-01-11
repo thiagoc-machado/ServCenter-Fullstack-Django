@@ -145,11 +145,12 @@ def new_work_order(request):
             finances = Finance.objects.all()
 
             obs = 'Pagamento adiantado da OS: ' + str(work_orders)
-            nome = client.objects.get(pk=request.POST.get("cod_cli")).nome
+            nome = client_obj.nome
             data = datetime.now().date().strftime("%Y-%m-%d")
             valor = request.POST.get("total")
             movimento = 'entrada'
             tipo_pgto = request.POST.get("modo_pgto")
+            categoria_name=Categoria_in.objects.get(pk=categoria_id).categoria
 
             finances = Finance(
                 obs=obs,
@@ -159,6 +160,7 @@ def new_work_order(request):
                 movimento=movimento,
                 hora=time_br,
                 tipo_pgto=tipo_pgto,
+                categoria=categoria_name
             )
             finances.save()
 
@@ -317,6 +319,7 @@ def edit_work_order(request, id):
             movimento = 'entrada'
             tipo_pgto = request.POST.get("modo_pgto")
             categoria = request.POST.get("categoria")
+            categoria_name = Categoria_in.objects.get(pk=categoria).categoria
 
             finances = Finance(
                 obs=obs,
@@ -326,7 +329,7 @@ def edit_work_order(request, id):
                 movimento=movimento,
                 hora=time_br,
                 tipo_pgto=tipo_pgto,
-                categoria=categoria
+                categoria=categoria_name
             )
             finances.save()
 
