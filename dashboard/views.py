@@ -25,7 +25,10 @@ def get_values_by_hour():
             value_datetime = tz('America/Sao_Paulo').localize(value_datetime)
             hour = value_datetime.hour - 8  # ajuste de índice da lista
             if 0 <= hour <= 10:
-                valor = value.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                if not value.valor:
+                    valor = 0
+                else:
+                    valor = value.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
                 value_str = f'{valor[:-2]}.{valor[-2:]}'
                 value_float = float(value_str)
                 values[hour] += value_float # type: ignore
@@ -40,7 +43,10 @@ def get_output_by_hour():
             value_datetime = tz('America/Sao_Paulo').localize(value_datetime)
             hour = value_datetime.hour - 8  # ajuste de índice da lista
             if 0 <= hour <= 10:
-                valor = value.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                if not value.valor:
+                    valor = 0
+                else:
+                    valor = value.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
                 valor = f'{valor[:-2]}.{valor[-2:]}'
                 value_float = float(valor)
                 values[hour] += value_float# type: ignore

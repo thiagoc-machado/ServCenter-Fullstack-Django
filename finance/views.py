@@ -177,13 +177,19 @@ def finance_dia(request):
             if finances.movimento == 'entrada':
                 valor = finances.valor
                 if valor is not None:
-                    valor = float(valor.replace('R$', '').replace(',', '.'))
-                    finance_sum += valor
+                    # valor = float(valor.replace('R$', '').replace(',', '.'))
+                    valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                    value_str = f'{valor[:-2]}.{valor[-2:]}'
+                    value_float = float(value_str)
+                    finance_sum += value_float
             elif finances.movimento == 'saída':
                 valor = finances.valor
                 if valor is not None:
-                    valor = float(valor.replace('R$', '').replace(',', '.'))
-                    finance_min -= valor
+                    # valor = float(valor.replace('R$', '').replace(',', '.'))
+                    valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                    value_str = f'{valor[:-2]}.{valor[-2:]}'
+                    value_float = float(value_str)
+                    finance_min -= value_float
 
         finance_minus = finance_min * -1
         finance_tot = finance_sum - finance_minus
@@ -226,13 +232,19 @@ def finance_sem(request):
         if finances.movimento == 'entrada':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_sum += valor
+                # valor = float(valor.replace('R$', '').replace(',', '.'))
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
         elif finances.movimento == 'saída':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_min -= valor
+                # valor = float(valor.replace('R$', '').replace(',', '.'))
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_min -= value_float
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
     finance_total = round(finance_tot, 2)
@@ -257,13 +269,18 @@ def finance_mes(request):
         if finances.movimento == 'entrada':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_sum += valor
+                # valor = float(valor.replace('R$', '').replace(',', '.'))
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
         elif finances.movimento == 'saída':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_min -= valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
     finance_total = finance_tot
@@ -286,13 +303,17 @@ def finance_ano(request):
         if finances.movimento == 'entrada':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_sum += valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
         elif finances.movimento == 'saída':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_min -= valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
     finance_total = round(finance_tot, 2)
@@ -314,13 +335,17 @@ def finance_tot(request):
         if finances.movimento == 'entrada':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_sum += valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
         elif finances.movimento == 'saída':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_min -= valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
     finance_total = round(finance_tot, 2)
@@ -510,13 +535,17 @@ def diario():
         if finances.movimento == 'entrada':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_sum += valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
         elif finances.movimento == 'saída':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_min -= valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
 
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
@@ -538,13 +567,17 @@ def semanal():
         if finances.movimento == 'entrada':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_sum += valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
         elif finances.movimento == 'saída':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_min -= valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
     finance_total = round(finance_tot, 2)
@@ -566,13 +599,17 @@ def mensal():
         if finances.movimento == 'entrada':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_sum += valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
         elif finances.movimento == 'saída':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_min -= valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
     finance_total = round(finance_tot, 2)
@@ -591,13 +628,17 @@ def anual():
         if finances.movimento == 'entrada':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_sum += valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
         elif finances.movimento == 'saída':
             valor = finances.valor
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.'))
-                finance_min -= valor
+                valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                finance_sum += value_float
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
     finance_total = round(finance_tot, 2)
@@ -616,8 +657,17 @@ def finance_chart():
     data = {}
     for finance in finance_data:
         day = finance.data.day
-        valor = float(finance.valor.replace(',', '.').replace(
-            'R$', '').replace(' ', '')) if finance.valor else 0
+        # valor = float(finance.valor.replace(',', '.').replace(
+            # 'R$', '').replace(' ', '')) if finance.valor else 0
+        
+        if not finance.valor:
+            valor = 0
+        else:
+            valor = finance.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+            value_str = f'{valor[:-2]}.{valor[-2:]}'
+            value_float = float(value_str)
+            valor = value_float 
+ 
         if finance.movimento == 'entrada':
             data[day] = data.get(day, {'entradas': 0, 'saidas': 0})
             data[day]['entradas'] += valor
@@ -651,7 +701,15 @@ def finance_year_chart():
         if unique_entry not in seen:
             seen.add(unique_entry)
             month = finance.data.month
-            valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+            # valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+            if not finance.valor:
+                valor = 0
+            else:
+                valor = finance.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                valor = value_float
+
             if finance.movimento == 'entrada':
                 if month not in data:
                     data[month] = {'entradas': 0, 'saidas': 0}
@@ -728,7 +786,14 @@ def pie_chart_dia_pgto():
     payment_methods = {}
     for finance in finances:
         payment_type = finance.tipo_pgto if finance.tipo_pgto else 'Outros'
-        valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+        # valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+        if not finance.valor:
+            valor = 0
+        else:
+            valor = finance.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+            value_str = f'{valor[:-2]}.{valor[-2:]}'
+            value_float = float(value_str)
+            valor = value_float
 
         if payment_type in payment_methods:
             payment_methods[payment_type] += valor
@@ -760,7 +825,14 @@ def pie_chart_mes_pgto():
     payment_methods = {}
     for finance in finances:
         payment_type = finance.tipo_pgto if finance.tipo_pgto else 'Outros'
-        valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+        # valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+        if not finance.valor:
+            valor = 0
+        else:
+            valor = finance.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+            value_str = f'{valor[:-2]}.{valor[-2:]}'
+            value_float = float(value_str)
+            valor = value_float
 
         if payment_type in payment_methods:
             payment_methods[payment_type] += valor
@@ -798,7 +870,14 @@ def pie_chart_mes_in():
 
     for finance in finances:
         category = finance.categoria if finance.categoria else 'Outros'
-        valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+        # valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+        if not finance.valor:
+            valor = 0
+        else:
+            valor = finance.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+            value_str = f'{valor[:-2]}.{valor[-2:]}'
+            value_float = float(value_str)
+            valor = value_float
         unique_entry = (finance.data, finance.valor, finance.categoria)
 
         if unique_entry not in seen:
@@ -838,7 +917,14 @@ def pie_chart_ano_in():
         if unique_entry not in seen:
             seen.add(unique_entry)
             category = finance.categoria if finance.categoria else 'Outros'
-            valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+            # valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+            if not finance.valor:
+                valor = 0
+            else:
+                valor = finance.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(value_str)
+                valor = value_float
             if category in expenses_by_category:
                 expenses_by_category[category] += valor
             else:
