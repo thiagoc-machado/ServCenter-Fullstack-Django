@@ -17,6 +17,7 @@ migrations/
 
 # Virtual environment
 venv/
+venv2/
 venv*/
 env*/
 
