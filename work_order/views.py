@@ -418,7 +418,7 @@ def cupon(request, id):
 
     # Adiciona as informações da empresa
     pdf.setFont('Helvetica', 4)
-    pdf.drawString(5, 220, company_name)
+    pdf.drawString(5, 220, company_name)#type: ignore
     pdf.drawString(5, 215, company_address)
     pdf.drawString(5, 210, company_city)
     pdf.drawString(5, 205, company_phone)
@@ -541,7 +541,7 @@ def print(request, id):
 
     # Adiciona as informações da empresa
     pdf.setFont('Helvetica', 8)
-    pdf.drawCentredString(105*mm, 280*mm, company_name)
+    pdf.drawCentredString(105*mm, 280*mm, company_name) # type: ignore
     pdf.drawCentredString(105*mm, 275*mm, company_address)
     pdf.drawCentredString(105*mm, 270*mm, company_city)
     pdf.drawCentredString(105*mm, 265*mm, company_phone)

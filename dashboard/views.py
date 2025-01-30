@@ -25,8 +25,8 @@ def get_values_by_hour():
             value_datetime = tz('America/Sao_Paulo').localize(value_datetime)
             hour = value_datetime.hour - 8  # ajuste de índice da lista
             if 0 <= hour <= 10:
-                value_str = value.valor.replace(# type: ignore
-                    'R$', '').replace(',', '.').strip()
+                valor = value.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                value_str = f'{valor[:-2]}.{valor[-2:]}'
                 value_float = float(value_str)
                 values[hour] += value_float # type: ignore
     return values
@@ -40,9 +40,9 @@ def get_output_by_hour():
             value_datetime = tz('America/Sao_Paulo').localize(value_datetime)
             hour = value_datetime.hour - 8  # ajuste de índice da lista
             if 0 <= hour <= 10:
-                value_str = value.valor.replace(# type: ignore
-                    'R$', '').replace(',', '.').strip()
-                value_float = float(value_str)
+                valor = value.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                valor = f'{valor[:-2]}.{valor[-2:]}'
+                value_float = float(valor)
                 values[hour] += value_float# type: ignore
     return values
 
@@ -63,13 +63,16 @@ def dashboard(request):
             if finances.movimento == 'entrada':
                 valor = finances.valor
                 if valor is not None:
-                    valor = valor.strip().replace('R$', '').replace(',', '.')
+                    valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                    valor = f'{valor[:-2]}.{valor[-2:]}'
                     valor_float = float(valor)
                     finance_sum += valor_float
             elif finances.movimento == 'saída':
                 valor = finances.valor
                 if valor is not None:
-                    valor = float(valor.replace('R$ ', '').replace(',', '.'))
+                    valor = valor.replace('R$', '').replace('.', '').replace(',', '').strip()
+                    valor = f'{valor[:-2]}.{valor[-2:]}'
+                    valor = float(valor)
                     finance_min -= valor
 
         finance_minus = finance_min * -1
