@@ -2,10 +2,17 @@
 from pathlib import Path
 import os
 from django.contrib.messages import constants
+from dotenv import load_dotenv # type: ignore
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-*)%z&*kcnam%+$qna&squd&eul+wm@7^lnxfc0ex2*f!j2hv4e'
-DEBUG = True
+
+# Carrega o arquivo .env
+load_dotenv()
+
+# Lê a variável DJANGO_DEBUG e converte para booleano
+DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ['true', '1']
+print(f'DEBUG: {DEBUG}')
 
 ALLOWED_HOSTS = ['*']
 
@@ -153,7 +160,9 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000', 
     'http://localhost:8000', 
     'https://servcenter2.up.railway.app',
-    'https://sservcenter.up.railway.app'
+    'https://sservcenter.up.railway.app',
+    'https://servcenter.online',
+    'https://www.servcenter.online'
 ]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'

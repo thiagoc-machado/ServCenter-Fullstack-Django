@@ -56,7 +56,6 @@ $(document).ready(function () {
   });
 });
 
-
 var spinner = document.getElementById("spinner");
 // Exibe o spinner quando a página estiver carregando
 window.addEventListener("beforeunload", function(event) {
