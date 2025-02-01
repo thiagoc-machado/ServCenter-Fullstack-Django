@@ -29,7 +29,7 @@ def get_values_by_hour():
                     valor = 0
                 else:
                     valor = value.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
-                value_str = f'{valor[:-2]}.{valor[-2:]}'
+                value_str = f'{valor[:-2]}.{valor[-2:]}' # type: ignore
                 value_float = float(value_str)
                 values[hour] += value_float # type: ignore
     return values
@@ -47,7 +47,7 @@ def get_output_by_hour():
                     valor = 0
                 else:
                     valor = value.valor.replace('R$', '').replace('.', '').replace(',', '').strip()
-                valor = f'{valor[:-2]}.{valor[-2:]}'
+                valor = f'{valor[:-2]}.{valor[-2:]}' # type: ignore
                 value_float = float(valor)
                 values[hour] += value_float# type: ignore
     return values
