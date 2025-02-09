@@ -509,18 +509,26 @@ def diario():
     for finances in Finance.objects.filter(data=today):
         if finances.movimento == 'entrada':
             valor = finances.valor if finances.valor else 0
-            if valor is not None:
-                # valor = float(valor.replace('R$', '').replace(',', '.'))
-                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
-                valor = float(valor_str) / 100
-                finance_sum += valor
+            try:
+                valor = finances.valor if finances.valor else 0
+                if valor is not None:
+                    # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
+                    valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
+                    valor = float(valor_str) / 100
+            except ValueError:
+                valor = 0
+            finance_sum += valor
         elif finances.movimento == 'saída':
             valor = finances.valor if finances.valor else 0
-            if valor is not None:
-                # valor = float(valor.replace('R$', '').replace(',', '.'))
-                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
-                valor = float(valor_str) / 100
-                finance_min -= valor
+            try:
+                valor = finances.valor if finances.valor else 0
+                if valor is not None:
+                    # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
+                    valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
+                    valor = float(valor_str) / 100
+            except ValueError:
+                valor = 0
+            finance_min -= valor
 
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
@@ -541,18 +549,26 @@ def semanal():
     for finances in Finance.objects.filter(data__gte=start_of_week):
         if finances.movimento == 'entrada':
             valor = finances.valor if finances.valor else 0
-            if valor is not None:
-                # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
-                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
-                valor = float(valor_str) / 100
-                finance_sum += valor
+            try:
+                valor = finances.valor if finances.valor else 0
+                if valor is not None:
+                    # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
+                    valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
+                    valor = float(valor_str) / 100
+            except ValueError:
+                valor = 0
+            finance_sum += valor
         elif finances.movimento == 'saída':
             valor = finances.valor if finances.valor else 0
-            if valor is not None:
-                # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
-                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
-                valor = float(valor_str) / 100
-                finance_min -= valor
+            try:
+                valor = finances.valor if finances.valor else 0
+                if valor is not None:
+                    # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
+                    valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
+                    valor = float(valor_str) / 100
+            except ValueError:
+                valor = 0
+            finance_min -= valor
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
     finance_total = round(finance_tot, 2)
@@ -572,19 +588,26 @@ def mensal():
     finance_min = 0
     for finances in Finance.objects.filter(data__gte=start_of_month):
         if finances.movimento == 'entrada':
-            valor = finances.valor if finances.valor else 0
-            if valor is not None:
-                # valor = float(valor.replace('R$', '').replace(',', '.'))
-                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
-                valor = float(valor_str) / 100
-                finance_sum += valor
+            try:
+                valor = finances.valor if finances.valor else 0
+                if valor is not None:
+                    # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
+                    valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
+                    valor = float(valor_str) / 100
+            except ValueError:
+                valor = 0
+            finance_sum += valor
         elif finances.movimento == 'saída':
-            valor = finances.valor if finances.valor else 0
-            if valor is not None:
-                # valor = float(valor.replace('R$', '').replace(',', '.'))
-                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
-                valor = float(valor_str) / 100
-                finance_min -= valor
+            try:
+                valor = finances.valor if finances.valor else 0
+                if valor is not None:
+                    # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
+                    valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
+                    valor = float(valor_str) / 100
+                
+            except ValueError:
+                valor = 0
+            finance_min -= valor
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
     finance_total = round(finance_tot, 2)
@@ -601,19 +624,25 @@ def anual():
     finance_min = 0
     for finances in Finance.objects.filter(data__year=year):
         if finances.movimento == 'entrada':
-            valor = finances.valor if finances.valor else 0
-            if valor is not None:
-                # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
-                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
-                valor = float(valor_str) / 100
-                finance_sum += valor
+            try:
+                valor = finances.valor if finances.valor else 0
+                if valor is not None:
+                    # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
+                    valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
+                    valor = float(valor_str) / 100
+            except ValueError:
+                valor = 0
+            finance_sum += valor
         elif finances.movimento == 'saída':
-            valor = finances.valor if finances.valor else 0
-            if valor is not None:
-                # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
-                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
-                valor = float(valor_str) / 100
-                finance_min -= valor
+            try:
+                valor = finances.valor if finances.valor else 0
+                if valor is not None:
+                    # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
+                    valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
+                    valor = float(valor_str) / 100
+            except ValueError:
+                valor = 0
+            finance_min -= valor
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
     finance_total = round(finance_tot, 2)
@@ -632,8 +661,14 @@ def finance_chart():
     data = {}
     for finance in finance_data:
         day = finance.data.day
-        valor = float(finance.valor.replace(',', '.').replace(
-            'R$', '').replace(' ', '')) if finance.valor else 0
+        try:
+            valor = finance.valor if finance.valor else 0
+            if valor is not None:
+                # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
+                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
+                valor = float(valor_str) / 100
+        except ValueError:
+            valor = 0
         if finance.movimento == 'entrada':
             data[day] = data.get(day, {'entradas': 0, 'saidas': 0})
             data[day]['entradas'] += valor
@@ -932,7 +967,15 @@ def pie_chart_mes_out():
         if unique_entry not in seen:
             seen.add(unique_entry)
             category = finance.categoria if finance.categoria else 'Outros'
-            valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+            # valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+            try:
+                valor = finance.valor if finance.valor else 0
+                if valor is not None:
+                    # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
+                    valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
+                    valor = float(valor_str) / 100
+            except ValueError:
+                valor = 0
             if category in expenses_by_category:
                 expenses_by_category[category] += valor
             else:
@@ -985,7 +1028,14 @@ def pie_chart_ano_out():
         if unique_entry not in seen:
             seen.add(unique_entry)
             category = finance.categoria if finance.categoria else 'Outros'
-            valor = float(finance.valor.replace(',', '.').replace('R$', '').replace(' ', '')) if finance.valor else 0
+            try:
+                valor = finance.valor if finance.valor else 0
+                if valor is not None:
+                    # valor = float(valor.replace('R$', '').replace('.', '').replace(',', '.'))
+                    valor_str = valor.replace('R$', '').replace('.', '').replace(',', '').replace(' ', '') # type: ignore
+                    valor = float(valor_str) / 100
+            except ValueError:
+                valor = 0
             if category in expenses_by_category:
                 expenses_by_category[category] += valor
             else:
