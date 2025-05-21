@@ -20,4 +20,5 @@ venv/
 venv2/
 venv*/
 env*/
+/venv/
 
