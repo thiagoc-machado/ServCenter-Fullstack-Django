@@ -102,6 +102,7 @@ WSGI_APPLICATION = 'servcenter.wsgi.application'
 #     }
 # }
 
+
 # PostgresSQL
 DATABASES = {
     'default': {
