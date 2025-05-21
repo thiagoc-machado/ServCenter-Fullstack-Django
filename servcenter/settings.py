@@ -174,7 +174,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://sservcenter.up.railway.app',
     'https://servcenter.online',
     'https://www.servcenter.online',
-    'web-production-e443.up.railway.app'
+    'https://web-production-e443.up.railway.app'
 ]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
