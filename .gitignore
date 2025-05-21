@@ -21,4 +21,5 @@ venv2/
 venv*/
 env*/
 /venv/
+.env
 
