@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 import json
 from django.db.models import Sum
+from decimal import Decimal
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -80,7 +81,7 @@ def finance(request):
         tot = tot_in()
         if total_dep == None:
             total_dep = 0
-        gaveta = tot - total_dep
+        gaveta = Decimal(tot) - (total_dep or Decimal(0))
 
         pizza_chart_mes_in = pie_chart_mes_in()
         pizza_chart_ano_in = pie_chart_ano_in()
@@ -200,8 +201,7 @@ def finance_dia(request):
         tot = tot_in()
         if total_dep == None:
             total_dep = 0
-        gaveta = tot - total_dep
-        gaveta = tot - total_dep
+        gaveta = Decimal(tot) - (total_dep or Decimal(0))
         return render(request, 'finance_dia.html', {'finance': finance,
                                                     'finance_all': finance_all,
                                                     'finance_sum': '{:.2f}'.format(finance_sum),
@@ -257,12 +257,14 @@ def finance_mes(request):
         if finances.movimento == 'entrada':
             valor = finances.valor if finances.valor else 0
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.')) # type: ignore
+                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '.').strip()
+                valor = float(valor_str)
                 finance_sum += valor
         elif finances.movimento == 'saída':
             valor = finances.valor if finances.valor else 0
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.')) # type: ignore
+                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '.').strip()
+                valor = float(valor_str)
                 finance_min -= valor
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
@@ -286,12 +288,14 @@ def finance_ano(request):
         if finances.movimento == 'entrada':
             valor = finances.valor if finances.valor else 0
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.')) # type: ignore
+                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '.').strip()
+                valor = float(valor_str)
                 finance_sum += valor
         elif finances.movimento == 'saída':
             valor = finances.valor if finances.valor else 0
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.')) # type: ignore
+                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '.').strip()
+                valor = float(valor_str)
                 finance_min -= valor
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
@@ -314,12 +318,14 @@ def finance_tot(request):
         if finances.movimento == 'entrada':
             valor = finances.valor if finances.valor else 0
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.')) # type: ignore
+                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '.').strip()
+                valor = float(valor_str)
                 finance_sum += valor
         elif finances.movimento == 'saída':
             valor = finances.valor if finances.valor else 0
             if valor is not None:
-                valor = float(valor.replace('R$', '').replace(',', '.')) # type: ignore
+                valor_str = valor.replace('R$', '').replace('.', '').replace(',', '.').strip()
+                valor = float(valor_str)
                 finance_min -= valor
     finance_minus = finance_min * -1
     finance_tot = finance_sum - finance_minus
