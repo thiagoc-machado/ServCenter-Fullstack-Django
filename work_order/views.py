@@ -28,7 +28,7 @@ from finance.models import Categoria_in, Finance
 @login_required
 def work_order(request):
     if request.method == "GET":
-        workorders = work_order_model.objects.all()
+        workorders = work_order_model.objects.all().order_by('-created_at')
         return render(request, 'work_order.html', {'workorders': workorders})
     else:
         return HttpResponseBadRequest('Invalid request method')
