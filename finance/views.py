@@ -21,16 +21,15 @@ def finance(request):
         deposits = request.POST.get('deposits')
         if deposits != '':
             total_deposit = 0
-            if Caixa.objects.aggregate(total=Sum('deposits'))['total'] != None:
-                total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))[
-                    'total'] + float(deposits) or 0
+            if Caixa.objects.aggregate(total=Sum('deposits'))['total'] is not None:
+                total_deposit = Caixa.objects.aggregate(total=Sum('deposits'))['total'] + Decimal(deposits)
                 total_deposits = 'R$ {:.2f}'.format(float(total_deposit))
             else:
                 total_deposits = 0
             caixa = Caixa.objects.all()
 
             tot = tot_in()
-            saldo = tot - total_deposit
+            saldo = Decimal(tot) - total_deposit
             caixa = Caixa(deposits=deposits, date=date.today(),
                         obs='Depósito', saldo='R$ {:.2f}'.format(float(saldo)))
             caixa.save()
