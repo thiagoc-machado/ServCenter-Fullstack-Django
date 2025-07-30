@@ -275,7 +275,6 @@ def finance_mes(request):
                                                 'finance_total': '{:.2f}'.format(finance_total),
                                                 })
 
-
 @user_passes_test(lambda u: u.is_superuser)
 def finance_ano(request):
     year = date.today().year
